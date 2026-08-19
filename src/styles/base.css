@@ -1,0 +1,78 @@
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+/* devbar (when present) sits below the screen instead of over it */
+#app { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+
+body {
+  background: var(--ink-1000);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+::selection { background: var(--accent); color: var(--ink-1000); }
+
+/* ---- shared primitives ---- */
+
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.94;
+}
+
+.rule { height: 1px; background: var(--line-soft); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  padding: 11px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r1);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  transition: color .16s, border-color .16s, background .16s;
+}
+.btn:hover { color: var(--text); border-color: #38414f; background: var(--ink-850); }
+
+.btn--primary {
+  border-color: var(--accent-dim);
+  color: var(--accent);
+  background: rgba(245, 165, 36, 0.06);
+}
+.btn--primary:hover {
+  background: var(--accent);
+  color: var(--ink-1000);
+  border-color: var(--accent);
+}
+
+.btn--danger { border-color: #5b201a; color: #e8695c; background: rgba(217,58,43,.07); }
+.btn--danger:hover { background: var(--war); color: #fff; border-color: var(--war); }
+
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+
+/* screens fade in rather than snap */
+.screen { height: 100%; animation: screen-in .45s var(--ease) both; }
+@keyframes screen-in { from { opacity: 0; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

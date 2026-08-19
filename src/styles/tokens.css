@@ -1,0 +1,46 @@
+:root {
+  /* ground */
+  --ink-1000: #050608;
+  --ink-950:  #08090c;
+  --ink-900:  #0c0e13;
+  --ink-850:  #11141b;
+  --ink-800:  #161a23;
+  --ink-750:  #1c212c;
+
+  --line:      #232936;
+  --line-soft: #191e28;
+
+  /* type */
+  --text:       #e7e9ee;
+  --text-dim:   #939bab;
+  --text-faint: #5b6373;
+
+  /* the one accent */
+  --accent:      #f5a524;
+  --accent-dim:  #7a5314;
+  --accent-glow: rgba(245, 165, 36, 0.22);
+
+  /* game states (kept to the minimum the map needs to be readable) */
+  --war:   #d93a2b;
+  --ally:  #1f8a72;
+  --dead:  #1a0f0d;
+
+  /* map */
+  --map-sea:      #08090c;
+  --map-neutral:  #1a1f29;
+  --map-stroke:   #262d3a;
+  --map-hover:    #262d3a;
+  --map-graticule: #12161e;
+
+  /* type stacks — system only, nothing to fetch, nothing to fail */
+  --font-display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  /* spacing */
+  --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
+  --s5: 24px; --s6: 32px; --s7: 48px; --s8: 72px;
+
+  --r1: 3px; --r2: 6px; --r3: 10px;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
