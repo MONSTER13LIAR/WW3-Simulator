@@ -22,6 +22,7 @@ export const state: GameState = {
   unread: {},
   stats: { military: 0, economy: 0, morale: 0, standing: 0 },
   nukesLaunched: 0,
+  typing: null,
   ending: null,
 }
 
@@ -68,6 +69,11 @@ export function startGame(playerId: CountryId) {
   }
 
   state.screen = 'game'
+  emit()
+}
+
+export function setTyping(t: GameState['typing']) {
+  state.typing = t
   emit()
 }
 

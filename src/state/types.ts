@@ -65,5 +65,7 @@ export interface GameState {
   unread: Record<string, number>
   stats: Stats
   nukesLaunched: number
+  /** who is mid-reply, so the indicator survives re-renders */
+  typing: { channel: string; leaderId: string } | null
   ending: EndingId | null
 }

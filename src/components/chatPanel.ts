@@ -1,24 +1,9 @@
 import { LEADERS, LEADER_BY_ID } from '../state/mock'
-import { state, messagesFor, openChannel, say, emit } from '../state/store'
+import { state, messagesFor, openChannel, say } from '../state/store'
+import { leaderRespond } from '../net/respond'
 import type { ChatMsg } from '../state/types'
 
 export const INBOX = 'INBOX'
-
-/** Placeholder retorts. Replaced by Featherless persona calls in the next pass. */
-const RETORTS: Record<string, string[]> = {
-  'France': ['I am choosing to interpret that as an insult.', 'I have left the alliance. I have rejoined. I am leaving again.'],
-  'Russia': ['no', '.', 'we will see'],
-  'Japan': ['I am so sorry to hear that. The fleet is already moving.', 'Thank you for your message. Please evacuate the coast.'],
-  'Germany': ['That response was not submitted in the approved format.', 'I am escalating this to Annex 7.'],
-  'United Kingdom': ['Ah. Right. Lovely.', 'No worries if not! (I have sunk your navy.)'],
-  'Switzerland': ['I have no opinion. Your account balance, however, does.', 'Neutral. Watching. Charging interest.'],
-  'Australia': ['yeah nah', 'sorry mate the bird’s back'],
-  'Canada': ['sorry — did I do something? sorry', 'okay. okay. that’s fine. that is completely fine.'],
-  'India': ['Kindly do the needful.', 'Forwarded to all 14 groups 🙏'],
-  'China': ['A rail link now connects our capitals. It was not requested.', 'Completed ahead of schedule.'],
-  'Brazil': ['come over, bring the tanks', 'this is a great energy honestly'],
-  'United States of America': ['Love this for us! Circling back post-detonation.', 'Let’s take this to a working group.'],
-}
 
 const QUICK_GLOBAL = ['gm 🙏', 'Who did this.', 'I demand a summit.', 'Nobody panic.']
 const QUICK_DM = ['k', 'Seen.', 'Is that a threat?', 'Alliance?', 'Absolutely not.']
@@ -63,6 +48,14 @@ function renderInbox(): string {
   return `<div class="inbox">${global}${rows}</div>`
 }
 
+function typingBubble(ch: string): string {
+  const t = state.typing
+  if (!t || t.channel !== ch) return ''
+  const l = LEADER_BY_ID.get(t.leaderId)
+  return `<div class="msg"><span class="who">${l ? `${l.flag} ${l.short}` : ''}</span>
+    <div class="typing"><i></i><i></i><i></i></div></div>`
+}
+
 export function renderRail(): string {
   const ch = state.openChannel
 
@@ -90,7 +83,7 @@ export function renderRail(): string {
       <div class="who"><b>${title}</b><small>${esc(sub)}</small></div>
       <span class="dot"></span>
     </div>
-    <div class="log" id="log">${messagesFor(ch).map(bubble).join('')}</div>
+    <div class="log" id="log">${messagesFor(ch).map(bubble).join('')}${typingBubble(ch)}</div>
     <div class="composer">
       <div class="quick">${quick}</div>
       <div class="row">
@@ -123,23 +116,10 @@ function send(text: string) {
   say(state.playerId, ch, text)
 
   const responder = ch === 'GLOBAL'
-    ? LEADERS.filter(l => l.id !== state.playerId)[state.messages.length % (LEADERS.length - 1)]
+    ? LEADERS.filter(l => l.id !== state.playerId && state.relations[l.id] !== 'destroyed')[
+        Math.floor(Math.random() * Math.max(1, LEADERS.filter(l => l.id !== state.playerId && state.relations[l.id] !== 'destroyed').length))]
     : LEADER_BY_ID.get(ch)
-  if (!responder) return
 
-  showTyping()
-  const pool = RETORTS[responder.id] ?? ['…']
-  const line = pool[state.messages.length % pool.length]
-  setTimeout(() => say(responder.id, ch, line), 900)
+  if (responder) void leaderRespond(responder.id, ch)
 }
 
-function showTyping() {
-  const log = document.getElementById('log')
-  if (!log) return
-  const t = document.createElement('div')
-  t.className = 'typing'
-  t.innerHTML = '<i></i><i></i><i></i>'
-  log.appendChild(t)
-  log.scrollTop = log.scrollHeight
-  setTimeout(() => { t.remove(); emit() }, 880)
-}

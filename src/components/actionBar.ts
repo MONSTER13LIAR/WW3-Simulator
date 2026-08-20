@@ -1,6 +1,7 @@
 import { LEADERS } from '../state/mock'
 import { state, say, setRelation, setDefcon, bumpStats, advanceDay, openChannel, endGame } from '../state/store'
 import { strike } from './fx'
+import { leaderRespond, someoneReacts } from '../net/respond'
 import { INBOX } from './chatPanel'
 
 const ACTIONS = [
@@ -47,6 +48,7 @@ function run(act: string) {
       setRelation(t, 'ally')
       bumpStats({ standing: 6, morale: 3 })
       say('SYSTEM', 'GLOBAL', `Alliance signed with ${t}`, 'system')
+      void leaderRespond(t, 'GLOBAL')
       break
 
     case 'sanction':
@@ -55,12 +57,14 @@ function run(act: string) {
       bumpStats({ economy: -5, standing: -8 })
       setDefcon(state.defcon - 1)
       say('SYSTEM', 'GLOBAL', `Sanctions imposed on ${t}`, 'system')
+      void leaderRespond(t, 'GLOBAL')
       break
 
     case 'mobilise':
       bumpStats({ military: 7, economy: -6, morale: -4 })
       setDefcon(state.defcon - 1)
       say('SYSTEM', 'GLOBAL', 'Forces mobilised', 'system')
+      someoneReacts()
       break
 
     case 'propaganda':
@@ -83,6 +87,8 @@ function run(act: string) {
         setRelation(t, 'destroyed')
         bumpStats({ standing: -22, morale: -10, economy: -8 })
         say('SYSTEM', 'GLOBAL', `${t} is gone`, 'system')
+        // the room reacts to the launch — the funniest beat in the game
+        someoneReacts([t])
       }, 1400)
       if (state.nukesLaunched >= 4) setTimeout(() => endGame('annihilation'), 3200)
       break
