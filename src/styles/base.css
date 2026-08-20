@@ -69,6 +69,41 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .btn:disabled { opacity: .35; cursor: not-allowed; }
 
+/* ---- arrow buttons ----
+   The arrow holds a reserved slot in the padding rather than sitting in the
+   flow, so revealing it is an opacity + transform change and never a reflow. */
+
+.btn--go {
+  position: relative;
+  padding-right: 42px;
+  transform-origin: center;
+  transition:
+    color .16s, background .16s, border-color .16s,
+    transform .26s var(--ease), box-shadow .26s var(--ease);
+}
+.btn--go:hover, .btn--go:focus-visible { transform: scale(1.05); }
+.btn--go:active { transform: scale(1.01); box-shadow: none; }
+
+/* back-style buttons point the other way, from the left padding */
+.btn--back { padding-right: 20px; padding-left: 42px; }
+
+.btn-arrow {
+  position: absolute;
+  right: 16px; top: 50%;
+  display: inline-flex; align-items: center;
+  opacity: 0;
+  transform: translate(-9px, -50%);
+  transition: transform .26s var(--ease), opacity .2s linear;
+}
+.btn--back .btn-arrow { left: 16px; right: auto; transform: translate(9px, -50%); }
+
+.btn--go:hover .btn-arrow,
+.btn--go:focus-visible .btn-arrow { opacity: 1; transform: translate(0, -50%); }
+
+.btn-arrow svg { display: block; width: 22px; height: 12px; }
+
+button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
+
 /* screens fade in rather than snap */
 .screen { height: 100%; animation: screen-in .45s var(--ease) both; }
 @keyframes screen-in { from { opacity: 0; } to { opacity: 1; } }
