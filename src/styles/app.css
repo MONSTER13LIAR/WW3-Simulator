@@ -242,7 +242,7 @@
 
 /* ============================================================ SELECT */
 
-.select { display: grid; grid-template-rows: auto 1fr; height: 100%; }
+.select { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100%; }
 
 .select-head {
   padding: var(--s6) var(--s7) var(--s5);
@@ -252,54 +252,130 @@
 .select-head h2 {
   font-family: var(--font-display); font-weight: 800;
   font-size: 34px; letter-spacing: -0.03em; text-transform: uppercase;
+  margin-top: var(--s2);
 }
-.select-head p { color: var(--text-faint); margin-top: var(--s2); font-size: 12px; }
+.select-sub { color: var(--text-faint); margin-top: var(--s2); font-size: 12px; }
+
+.select-head-side {
+  display: flex; flex-direction: column; align-items: flex-end; gap: var(--s3);
+}
+
+/* ---- grid ----
+   Hairlines come from the cards' own borders, not a gap-coloured backdrop, so
+   an incomplete last row reads as empty space instead of a grey slab. */
 
 .select-grid {
   overflow-y: auto;
-  padding: var(--s5) var(--s7) var(--s7);
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
-  gap: 1px;
-  background: var(--line-soft);
-  border-top: 1px solid var(--line-soft);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   align-content: start;
 }
-.select-grid { padding: 0; }
 
 .card {
+  position: relative;
   background: var(--ink-950);
-  padding: var(--s5);
+  border-right: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+  padding: var(--s5) var(--s5) var(--s4);
   text-align: left;
+  /* Fixed row track: identity, doctrine, persona, then bars and the CTA pinned
+     to the bottom — so those line up across every card in a row. */
   display: grid;
+  grid-template-rows: auto auto 1fr auto auto;
   gap: var(--s3);
   transition: background .18s var(--ease);
-  position: relative;
 }
 .card::after {
   content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
   background: var(--accent); transform: scaleY(0); transform-origin: top;
   transition: transform .22s var(--ease);
 }
-.card:hover { background: var(--ink-880, #0f1218); }
-.card:hover::after { transform: scaleY(1); }
+.card:hover, .card:focus-visible { background: #0f1218; }
+.card:hover::after, .card:focus-visible::after { transform: scaleY(1); }
+.card:focus-visible { outline: none; }
+
+/* ---- identity ---- */
 
 .card-top { display: flex; align-items: center; gap: var(--s3); }
 .card-flag { font-size: 26px; line-height: 1; }
+.card-id { flex: 1; min-width: 0; }
 .card-name {
   font-family: var(--font-display); font-weight: 700;
-  font-size: 16px; letter-spacing: -0.01em;
+  font-size: 17px; letter-spacing: -0.01em;
 }
-.card-leader { color: var(--text-faint); font-size: 11px; }
-.card-doctrine { color: var(--accent); font-size: 12px; line-height: 1.5; min-height: 2lh; }
-.card-persona { color: var(--text-faint); font-size: 11px; line-height: 1.6; }
+.card-leader {
+  color: var(--text-faint); font-size: 11px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-no {
+  font-size: 10px; letter-spacing: .1em;
+  color: var(--text-faint); opacity: .5;
+  align-self: flex-start;
+}
 
-.bars { display: grid; gap: 5px; margin-top: var(--s1); }
-.bar { display: grid; grid-template-columns: 62px 1fr 26px; align-items: center; gap: var(--s2); }
-.bar span:first-child { font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint); }
-.bar span:last-child { font-size: 10px; color: var(--text-faint); text-align: right; }
-.bar i { height: 3px; background: var(--ink-750); border-radius: 2px; overflow: hidden; display: block; }
-.bar i b { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+/* The doctrine is the one accented thing on the card. */
+.card-doctrine {
+  color: var(--accent);
+  font-size: 12.5px; line-height: 1.55;
+  min-height: 2lh;
+}
+.card-doctrine::before { content: '\201C'; }
+.card-doctrine::after  { content: '\201D'; }
+
+.card-persona { color: var(--text-faint); font-size: 11px; line-height: 1.65; }
+
+/* ---- stats ----
+   Neutral at rest so twelve cards don't turn the grid amber; the hovered card
+   is the only one that lights up. */
+
+.bars { display: grid; gap: 6px; padding-top: var(--s1); }
+.bar {
+  display: grid; grid-template-columns: 60px 1fr 24px;
+  align-items: center; gap: var(--s2);
+}
+.bar span:first-child {
+  font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--text-faint);
+}
+.bar-n {
+  font-size: 10px; text-align: right;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.bar i {
+  display: block; height: 3px;
+  background: var(--ink-800); border-radius: 2px; overflow: hidden;
+}
+.bar i b {
+  display: block; height: 100%;
+  background: var(--text-faint); border-radius: 2px;
+  transition: background .18s var(--ease);
+}
+.card:hover .bar i b, .card:focus-visible .bar i b { background: var(--accent); }
+
+/* ---- card CTA ---- */
+
+.card-go {
+  position: relative;
+  margin-top: var(--s2);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line-soft);
+  display: block;
+  font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--text-faint);
+  opacity: .7;
+  transition: color .18s, opacity .18s;
+}
+.card:hover .card-go, .card:focus-visible .card-go { color: var(--accent); opacity: 1; }
+
+.card-go .btn-arrow { right: 0; top: auto; bottom: 1px; transform: translateX(-9px); }
+.card:hover .card-go .btn-arrow,
+.card:focus-visible .card-go .btn-arrow { opacity: 1; transform: none; }
+
+@media (max-width: 720px) {
+  .select-head { padding: var(--s5) var(--s5) var(--s4); flex-wrap: wrap; }
+  .select-head h2 { font-size: 26px; }
+}
 
 /* ============================================================ GAME */
 
