@@ -4,9 +4,9 @@ export function renderSplash(): string {
   return `
   <div class="screen splash">
     <div class="splash-main">
-      <p class="eyebrow">A world war simulator · 12 heads of state · 1 group chat</p>
+      <p class="eyebrow">12 heads of state · 1 group chat · 8 ways it ends</p>
 
-      <h1>Left<br/>On <em>Read</em></h1>
+      <h1>WW3<br/><em>Simulator</em></h1>
 
       <p class="splash-sub">
         You are the head of state. So are eleven others, and none of them are well.

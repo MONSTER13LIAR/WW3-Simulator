@@ -11,7 +11,7 @@ export function renderGame(): string {
   return `
   <div class="screen game">
     <header class="topbar">
-      <span class="brand">Left On <span>Read</span></span>
+      <span class="brand">WW3 <span>Simulator</span></span>
       <span class="chip">Day <b>${state.day}</b></span>
       <span class="chip chip--defcon${hot}">Defcon <b>${state.defcon}</b></span>
       <span class="chip">Warheads used <b>${state.nukesLaunched}</b></span>
