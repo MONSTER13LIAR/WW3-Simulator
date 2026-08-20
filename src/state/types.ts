@@ -98,6 +98,10 @@ export interface GameState {
   nukesLaunched: number
   /** every warhead fired by anyone */
   worldNukes: number
+  /** country id -> people still alive there */
+  population: Record<CountryId, number>
+  /** everyone killed so far, worldwide */
+  deaths: number
   /** true once the player's own country is gone */
   playerDestroyed: boolean
   /** messages the player has sent, all channels — drives the Forgotten ending */

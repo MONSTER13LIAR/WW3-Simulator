@@ -1,4 +1,5 @@
-import { state, me } from '../state/store'
+import { state, me, livingIn } from '../state/store'
+import { formatPop, formatExact } from '../state/population'
 
 const cell = (label: string, v: number) => {
   const cls = v < 30 ? 'low' : v > 75 ? 'hi' : ''
@@ -14,6 +15,10 @@ export function renderHud(): string {
     <div class="hud-self">
       <span class="card-flag">${m.flag}</span>
       <div><b>${m.short}</b><small>${m.leader}</small></div>
+      <div class="hud-pop" title="${formatExact(livingIn(m.id))} alive">
+        <span>Population</span>
+        <b>${formatPop(livingIn(m.id))}</b>
+      </div>
     </div>
     <div class="hud-stats">
       ${cell('Military', s.military)}

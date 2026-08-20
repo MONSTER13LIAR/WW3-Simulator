@@ -1,7 +1,11 @@
 import { LEADERS } from '../state/mock'
 import { startGame, goto } from '../state/store'
 import { arrowRight, arrowLeft } from '../components/arrow'
+import { POPULATION, WORLD_POPULATION, formatPop, formatExact } from '../state/population'
 import type { Leader } from '../state/types'
+
+/** The population bar is scaled against the largest country, not against 100. */
+const BIGGEST = Math.max(...Object.values(POPULATION))
 
 const bar = (label: string, v: number) => `
   <div class="bar">
@@ -25,6 +29,11 @@ const card = (l: Leader, i: number) => `
     <p class="card-persona">${l.persona}</p>
 
     <div class="bars">
+      <div class="bar bar--pop" title="${formatExact(POPULATION[l.id])} people">
+        <span>Population</span>
+        <i><b style="width:${(POPULATION[l.id] / BIGGEST * 100).toFixed(1)}%"></b></i>
+        <span class="bar-n">${formatPop(POPULATION[l.id])}</span>
+      </div>
       ${bar('Military', l.stats.military)}
       ${bar('Economy', l.stats.economy)}
       ${bar('Morale', l.stats.morale)}
@@ -48,7 +57,7 @@ export function renderSelect(): string {
       </div>
 
       <div class="select-head-side">
-        <p class="eyebrow">${LEADERS.length} heads of state</p>
+        <p class="eyebrow">${LEADERS.length} states · ${formatPop(WORLD_POPULATION)} people</p>
         <button class="btn btn--go btn--back" data-go="splash">
           <span class="btn-arrow">${arrowLeft()}</span>
           Back

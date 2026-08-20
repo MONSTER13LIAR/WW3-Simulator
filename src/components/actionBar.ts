@@ -1,5 +1,8 @@
 import { LEADERS } from '../state/mock'
-import { state, say, setRelation, setDefcon, bumpStats, advanceDay, openChannel, endGame } from '../state/store'
+import {
+  state, say, setRelation, setDefcon, bumpStats, advanceDay, openChannel, endGame, strikeCountry,
+} from '../state/store'
+import { formatExact } from '../state/population'
 import { strike } from './fx'
 import { leaderRespond, someoneReacts } from '../net/respond'
 import { INBOX } from './chatPanel'
@@ -84,9 +87,10 @@ function run(act: string) {
       setRelation(t, 'war')
       say(state.playerId, 'GLOBAL', `Launch confirmed on ${t}.`, 'action')
       setTimeout(() => {
+        const toll = strikeCountry(t)
         setRelation(t, 'destroyed')
         bumpStats({ standing: -22, morale: -10, economy: -8 })
-        say('SYSTEM', 'GLOBAL', `${t} is gone`, 'system')
+        say('SYSTEM', 'GLOBAL', `${t} is gone — ${formatExact(toll)} dead`, 'system')
         // the room reacts to the launch — the funniest beat in the game
         someoneReacts([t])
       }, 1400)

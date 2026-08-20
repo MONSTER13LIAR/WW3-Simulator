@@ -2,6 +2,7 @@ import type {
   GameState, CountryId, Relation, ChatMsg, EndingId, Screen, Channel, LeaderMemory,
 } from './types'
 import { LEADERS, LEADER_BY_ID, SEED_GLOBAL, SEED_DMS, msg } from './mock'
+import { POPULATION, strikeToll } from './population'
 
 type Listener = (s: GameState) => void
 
@@ -15,6 +16,10 @@ function blankRelations(): Record<CountryId, Relation> {
   const r: Record<CountryId, Relation> = {}
   for (const l of LEADERS) r[l.id] = 'neutral'
   return r
+}
+
+function blankPopulation(): Record<CountryId, number> {
+  return { ...POPULATION }
 }
 
 function blankMemory(): Record<CountryId, LeaderMemory> {
@@ -36,6 +41,8 @@ export const state: GameState = {
   stats: { military: 0, economy: 0, morale: 0, standing: 0 },
   nukesLaunched: 0,
   worldNukes: 0,
+  population: blankPopulation(),
+  deaths: 0,
   playerDestroyed: false,
   playerMessages: 0,
   resolving: false,
@@ -72,6 +79,8 @@ export function startGame(playerId: CountryId) {
   state.defcon = 5
   state.nukesLaunched = 0
   state.worldNukes = 0
+  state.population = blankPopulation()
+  state.deaths = 0
   state.playerDestroyed = false
   state.playerMessages = 0
   state.resolving = false
@@ -184,6 +193,24 @@ export function setRelation(id: CountryId, rel: Relation) {
   state.relations[id] = rel
   emit()
 }
+
+/**
+ * A warhead lands. Takes its share of whoever is still alive there and adds
+ * them to the world toll; knocking the state out of the game is `destroy`,
+ * deliberately separate — the survivors outlive the government.
+ */
+export function strikeCountry(id: CountryId): number {
+  const living = state.population[id] ?? 0
+  const toll = strikeToll(living)
+  state.population[id] = living - toll
+  state.deaths += toll
+  state.worldNukes++
+  emit()
+  return toll
+}
+
+/** People still alive in a country, 0 once nothing is left. */
+export const livingIn = (id: CountryId) => state.population[id] ?? 0
 
 export function destroy(id: CountryId) {
   state.relations[id] = 'destroyed'

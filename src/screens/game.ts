@@ -4,6 +4,7 @@ import { renderHud } from '../components/statsHud'
 import { renderActionBar, bindActionBar } from '../components/actionBar'
 import { renderRail, bindRail } from '../components/chatPanel'
 import { ENDINGS } from '../state/mock'
+import { formatPop, formatExact } from '../state/population'
 import type { EndingId } from '../state/types'
 
 export function renderGame(): string {
@@ -15,6 +16,9 @@ export function renderGame(): string {
       <span class="chip">Day <b>${state.day}</b></span>
       <span class="chip chip--defcon${hot}">Defcon <b>${state.defcon}</b></span>
       <span class="chip">Warheads used <b>${state.nukesLaunched}</b></span>
+      <span class="chip chip--dead${state.deaths ? ' on' : ''}" title="${formatExact(state.deaths)} dead">
+        Dead <b>${formatPop(state.deaths)}</b>
+      </span>
       <span class="spacer"></span>
       <button class="btn" data-quit>Resign</button>
     </header>

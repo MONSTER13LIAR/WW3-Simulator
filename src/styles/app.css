@@ -330,7 +330,7 @@
 
 .bars { display: grid; gap: 6px; padding-top: var(--s1); }
 .bar {
-  display: grid; grid-template-columns: 60px 1fr 24px;
+  display: grid; grid-template-columns: 72px 1fr 44px;
   align-items: center; gap: var(--s2);
 }
 .bar span:first-child {
@@ -352,6 +352,17 @@
   transition: background .18s var(--ease);
 }
 .card:hover .bar i b, .card:focus-visible .bar i b { background: var(--accent); }
+
+/* Population is measured against the largest country, not out of 100, so it
+   sits above the doctrine stats with a rule between them. */
+.bar--pop {
+  padding-bottom: 7px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.bar--pop .bar-n { color: var(--text); }
+.bar--pop i b { background: var(--text-dim); }
+.card:hover .bar--pop i b, .card:focus-visible .bar--pop i b { background: var(--text); }
 
 /* ---- card CTA ---- */
 
@@ -402,6 +413,7 @@
 .chip b { color: var(--text); font-weight: 500; letter-spacing: 0; font-size: 12px; }
 .chip--defcon b { color: var(--accent); }
 .chip--defcon.hot b { color: var(--war); }
+.chip--dead.on b { color: var(--war); }
 
 .game-body { display: grid; grid-template-columns: minmax(0, 1fr) 384px; min-height: 0; }
 
@@ -419,6 +431,17 @@
 .hud-self div { display: grid; }
 .hud-self b { font-family: var(--font-display); font-size: 13px; letter-spacing: -.01em; }
 .hud-self small { color: var(--text-faint); font-size: 10px; }
+
+.hud-pop {
+  margin-left: var(--s4);
+  padding-left: var(--s4);
+  border-left: 1px solid var(--line-soft);
+}
+.hud-pop span {
+  font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--text-faint);
+}
+.hud-pop b { font-family: var(--font-display); font-size: 13px; letter-spacing: -.01em; }
 
 .hud-stats { display: flex; gap: var(--s5); margin-left: auto; }
 .stat { display: grid; gap: 4px; min-width: 84px; }
@@ -672,6 +695,18 @@
 .endcard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line-soft); }
 .endcard-grid div { background: var(--ink-950); padding: var(--s4) var(--s5); display: grid; gap: 3px; }
 .endcard-grid b { font-family: var(--font-display); font-size: 24px; letter-spacing: -.03em; }
+
+/* The toll gets its own band — it is the number the whole run comes down to. */
+.endcard-toll {
+  display: flex; align-items: baseline; gap: var(--s4); flex-wrap: wrap;
+  padding: var(--s5) var(--s6);
+  border-top: 1px solid var(--line-soft);
+}
+.endcard-toll b {
+  font-family: var(--font-display); font-size: 34px; letter-spacing: -.03em;
+  color: var(--war);
+}
+.endcard-toll small { color: var(--text-faint); font-size: 11px; margin-left: auto; }
 
 .endcard-quote { padding: var(--s5) var(--s6); border-top: 1px solid var(--line-soft); display: grid; gap: var(--s2); }
 .endcard-quote q { font-size: 14px; line-height: 1.6; color: var(--text); }

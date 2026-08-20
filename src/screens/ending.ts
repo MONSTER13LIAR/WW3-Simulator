@@ -1,5 +1,6 @@
 import { ENDINGS, LEADER_BY_ID } from '../state/mock'
 import { state, reset, goto } from '../state/store'
+import { WORLD_POPULATION, formatPop, formatExact } from '../state/population'
 
 export function renderEnding(): string {
   const e = ENDINGS[state.ending ?? 'forgotten']
@@ -23,6 +24,12 @@ export function renderEnding(): string {
         <div><span class="eyebrow">Warheads used</span><b>${state.nukesLaunched}</b></div>
         <div><span class="eyebrow">Final defcon</span><b>${state.defcon}</b></div>
         <div><span class="eyebrow">First to fall</span><b>${firstShot ? (LEADER_BY_ID.get(firstShot)?.flag ?? '—') : '—'}</b></div>
+      </div>
+
+      <div class="endcard-toll" title="${formatExact(state.deaths)} dead">
+        <span class="eyebrow">People killed</span>
+        <b>${formatPop(state.deaths)}</b>
+        <small>${((state.deaths / WORLD_POPULATION) * 100).toFixed(1)}% of everyone who was alive when you took office</small>
       </div>
 
       <div class="endcard-quote">
