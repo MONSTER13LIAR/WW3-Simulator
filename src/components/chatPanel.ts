@@ -8,6 +8,9 @@ export const INBOX = 'INBOX'
 const QUICK_GLOBAL = ['gm 🙏', 'Who did this.', 'I demand a summit.', 'Nobody panic.']
 const QUICK_DM = ['k', 'Seen.', 'Is that a threat?', 'Alliance?', 'Absolutely not.']
 
+/** Message ids that have already been on screen; they must not re-animate. */
+const mounted = new Set<string>()
+
 const esc = (s: string) => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]!))
 
 function bubble(m: ChatMsg): string {
@@ -15,7 +18,9 @@ function bubble(m: ChatMsg): string {
   const l = m.from !== 'SYSTEM' ? LEADER_BY_ID.get(m.from) : null
   const cls = m.kind === 'system' ? 'msg--system' : m.kind === 'action' ? 'msg--action' : mine ? 'msg--me' : ''
   const who = m.kind === 'system' ? '' : `<span class="who">${l ? `${l.flag} ${l.short}` : ''}</span>`
-  return `<div class="msg ${cls}">${who}<div class="bubble">${esc(m.text)}</div></div>`
+  const fresh = mounted.has(m.id) ? '' : ' is-new'
+  mounted.add(m.id)
+  return `<div class="msg ${cls}${fresh}" data-mid="${m.id}">${who}<div class="bubble">${esc(m.text)}</div></div>`
 }
 
 function lastLine(channel: string): string {
@@ -64,7 +69,7 @@ export function renderRail(): string {
 
   if (ch === INBOX) {
     return `
-    <aside class="rail">
+    <aside class="rail" data-channel="${INBOX}">
       <div class="rail-head">
         <div class="who"><b>Inbox</b><small>Every head of state, one message away</small></div>
       </div>
@@ -80,7 +85,7 @@ export function renderRail(): string {
     .map(q => `<button class="qb" data-quick="${esc(q)}">${esc(q)}</button>`).join('')
 
   return `
-  <aside class="rail">
+  <aside class="rail" data-channel="${esc(ch)}">
     <div class="rail-head">
       <button class="back" data-ch="${INBOX}" title="Back to inbox">←</button>
       <div class="who"><b>${title}</b><small>${esc(sub)}</small></div>
@@ -95,6 +100,49 @@ export function renderRail(): string {
       </div>
     </div>
   </aside>`
+}
+
+/**
+ * Swap the rail for its current state without losing what the player was in the
+ * middle of doing: an unsent draft, the caret, and the scroll position if they
+ * had scrolled up to read back.
+ */
+export function updateRail(root: HTMLElement) {
+  const old = root.querySelector<HTMLElement>('.rail')
+  if (!old) return
+
+  // A draft belongs to the conversation it was typed in; switching channels
+  // must not carry "I will end you" into someone else's DM.
+  const sameChannel = old.dataset.channel === String(state.openChannel)
+  const input = old.querySelector<HTMLInputElement>('#say')
+  const draft = sameChannel ? input?.value ?? '' : ''
+  const caret = input?.selectionStart ?? null
+  const hadFocus = sameChannel && document.activeElement === input
+
+  const log = old.querySelector<HTMLElement>('#log')
+  // "near the bottom" means new messages should keep pulling the view down
+  const pinned = !log || log.scrollHeight - log.scrollTop - log.clientHeight < 48
+  const wasAt = log?.scrollTop ?? 0
+
+  old.outerHTML = renderRail()
+
+  const rail = root.querySelector<HTMLElement>('.rail')
+  if (!rail) return
+  bindRail(rail)
+
+  const next = rail.querySelector<HTMLInputElement>('#say')
+  if (next && draft) {
+    next.value = draft
+    if (hadFocus) {
+      next.focus()
+      if (caret !== null) next.setSelectionRange(caret, caret)
+    }
+  } else if (next && hadFocus) {
+    next.focus()
+  }
+
+  const nextLog = rail.querySelector<HTMLElement>('#log')
+  if (nextLog && !pinned) nextLog.scrollTop = wasAt
 }
 
 export function bindRail(root: HTMLElement) {

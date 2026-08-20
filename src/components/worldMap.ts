@@ -57,7 +57,31 @@ export function renderWorldMap(): string {
   </div>`
 }
 
-/** delegate clicks once; the map is re-rendered as innerHTML on every state change */
+/**
+ * Repaint the existing map from state. Rebuilding the SVG on every state change
+ * cost a full re-parse of 177 country paths and restarted the war/ember pulses,
+ * so relations are pushed onto the nodes already in the document instead.
+ */
+export function refreshMap(root: HTMLElement) {
+  for (const el of root.querySelectorAll<SVGPathElement>('path.country')) {
+    const id = el.dataset.id
+    if (!id) continue
+    const rel = state.relations[id]
+    const cls = ['country', rel ? `rel-${rel}` : '', LEADER_BY_ID.has(id) ? 'is-playable' : '']
+      .filter(Boolean).join(' ')
+    // only touch it when it actually changed — reassigning restarts the pulse
+    if (el.getAttribute('class') !== cls) el.setAttribute('class', cls)
+  }
+
+  for (const el of root.querySelectorAll<SVGCircleElement>('circle.pin')) {
+    const id = el.dataset.id
+    if (!id) continue
+    const cls = `pin rel-${state.relations[id]}`
+    if (el.getAttribute('class') !== cls) el.setAttribute('class', cls)
+  }
+}
+
+/** delegate clicks once; the listener survives because the map is never rebuilt */
 export function bindMapClicks(root: HTMLElement) {
   root.addEventListener('click', e => {
     const el = (e.target as HTMLElement).closest('[data-id]') as HTMLElement | null

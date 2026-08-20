@@ -617,7 +617,10 @@
 
 /* messages */
 .log { overflow-y: auto; padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); }
-.msg { display: grid; gap: 3px; max-width: 92%; animation: msg-in .3s var(--ease) both; }
+/* Only a bubble the player has not seen yet animates in; the rest are
+   already on screen and must not replay on a re-render. */
+.msg { display: grid; gap: 3px; max-width: 92%; }
+.msg.is-new { animation: msg-in .3s var(--ease) both; }
 @keyframes msg-in { from { opacity: 0; transform: translateY(6px) } }
 .msg .who { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); }
 .msg .bubble {
