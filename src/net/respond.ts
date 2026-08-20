@@ -1,5 +1,5 @@
 import { LEADERS, LEADER_BY_ID } from '../state/mock'
-import { state, say, setTyping } from '../state/store'
+import { state, say, addTyping, clearTyping } from '../state/store'
 import { askLeader } from './leaders'
 
 /**
@@ -30,7 +30,7 @@ function fallbackLine(id: string): string {
 export async function leaderRespond(leaderId: string, channel: string): Promise<void> {
   if (!LEADER_BY_ID.has(leaderId)) return
 
-  setTyping({ channel, leaderId })
+  addTyping(channel, leaderId)
   const started = Date.now()
 
   const { text, fallback } = await askLeader(leaderId, channel)
@@ -39,7 +39,7 @@ export async function leaderRespond(leaderId: string, channel: string): Promise<
   const elapsed = Date.now() - started
   if (elapsed < 600) await new Promise(r => setTimeout(r, 600 - elapsed))
 
-  setTyping(null)
+  clearTyping(leaderId)
   say(leaderId, channel, fallback || !text ? fallbackLine(leaderId) : text)
 }
 

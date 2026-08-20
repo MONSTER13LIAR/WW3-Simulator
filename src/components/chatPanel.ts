@@ -49,11 +49,14 @@ function renderInbox(): string {
 }
 
 function typingBubble(ch: string): string {
-  const t = state.typing
-  if (!t || t.channel !== ch) return ''
-  const l = LEADER_BY_ID.get(t.leaderId)
-  return `<div class="msg"><span class="who">${l ? `${l.flag} ${l.short}` : ''}</span>
+  return state.typing
+    .filter(t => t.channel === ch)
+    .map(t => {
+      const l = LEADER_BY_ID.get(t.leaderId)
+      return `<div class="msg"><span class="who">${l ? `${l.flag} ${l.short}` : ''}</span>
     <div class="typing"><i></i><i></i><i></i></div></div>`
+    })
+    .join('')
 }
 
 export function renderRail(): string {

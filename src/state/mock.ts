@@ -1,4 +1,4 @@
-import type { Leader, Ending, EndingId, ChatMsg } from './types'
+import type { Leader, Ending, EndingId, ChatMsg, CountryId } from './types'
 
 /**
  * Placeholder roster. Humour is aimed strictly at government archetypes and
@@ -13,6 +13,12 @@ export const LEADERS: Leader[] = [
     doctrine: 'Every war is brought to you by a sponsor.',
     persona: 'Runs foreign policy like a product launch. Says "circle back" during air raids.',
     stats: { military: 92, economy: 88, morale: 61, standing: 44 },
+    volatility: 1.0, pettiness: 0.5,
+    grievances: [
+      'you did not attend their optional sync',
+      'you called their initiative "fine"',
+      'you replied to a thread instead of the channel',
+    ],
   },
   {
     id: 'Russia', short: 'RUS', flag: '🇷🇺',
@@ -20,6 +26,12 @@ export const LEADERS: Leader[] = [
     doctrine: 'Answers in one word. Usually that word is no.',
     persona: 'Deadpan. Explains nothing. Sometimes just sends a full stop.',
     stats: { military: 89, economy: 47, morale: 70, standing: 31 },
+    volatility: 1.3, pettiness: 0.3,
+    grievances: [
+      'you used too many words',
+      'you asked a follow-up question',
+      'you sent a thumbs up',
+    ],
   },
   {
     id: 'China', short: 'CHN', flag: '🇨🇳',
@@ -27,6 +39,12 @@ export const LEADERS: Leader[] = [
     doctrine: 'Will build a city before you finish this sentence.',
     persona: 'Answers every threat with a construction completion date.',
     stats: { military: 87, economy: 91, morale: 74, standing: 49 },
+    volatility: 0.8, pettiness: 0.25,
+    grievances: [
+      'you were late to a groundbreaking ceremony',
+      'you questioned a delivery date',
+      'you have not yet used the new bridge',
+    ],
   },
   {
     id: 'India', short: 'IND', flag: '🇮🇳',
@@ -34,6 +52,12 @@ export const LEADERS: Leader[] = [
     doctrine: 'Please fill Form 27B before declaring war.',
     persona: 'Adds everyone to group chats. Forwards things. Sends "gm 🙏" mid-crisis.',
     stats: { military: 78, economy: 72, morale: 80, standing: 66 },
+    volatility: 0.7, pettiness: 0.5,
+    grievances: [
+      'you left the group',
+      'you did not reply to gm',
+      'you did not do the needful',
+    ],
   },
   {
     id: 'Japan', short: 'JPN', flag: '🇯🇵',
@@ -41,6 +65,12 @@ export const LEADERS: Leader[] = [
     doctrine: 'Apologises profusely, then escalates precisely on schedule.',
     persona: 'Impeccably polite while doing something completely unforgivable.',
     stats: { military: 71, economy: 85, morale: 77, standing: 72 },
+    volatility: 0.9, pettiness: 0.4,
+    grievances: [
+      'you arrived four minutes early',
+      'you did not acknowledge the apology',
+      'you rounded the numbers',
+    ],
   },
   {
     id: 'Germany', short: 'DEU', flag: '🇩🇪',
@@ -48,6 +78,12 @@ export const LEADERS: Leader[] = [
     doctrine: 'That is not the correct form for a declaration of war.',
     persona: 'Cites subsections. Files complaints. Rejects invasions on procedural grounds.',
     stats: { military: 69, economy: 87, morale: 68, standing: 74 },
+    volatility: 1.0, pettiness: 0.7,
+    grievances: [
+      'you submitted the wrong form',
+      'you skipped a subsection',
+      'your declaration used an unapproved font',
+    ],
   },
   {
     id: 'France', short: 'FRA', flag: '🇫🇷',
@@ -55,6 +91,12 @@ export const LEADERS: Leader[] = [
     doctrine: 'On strike. Also offended.',
     persona: 'Escalates over being left on read. Leaves the conversation dramatically, returns immediately.',
     stats: { military: 74, economy: 76, morale: 55, standing: 63 },
+    volatility: 1.6, pettiness: 0.9,
+    grievances: [
+      'you left them on read',
+      'you did not thank them publicly',
+      'you agreed with them insufficiently',
+    ],
   },
   {
     id: 'United Kingdom', short: 'GBR', flag: '🇬🇧',
@@ -62,6 +104,12 @@ export const LEADERS: Leader[] = [
     doctrine: 'Passive aggression, but it is a nuclear deterrent.',
     persona: 'Opens with the weather. Closes with "no worries if not!" while sinking your navy.',
     stats: { military: 73, economy: 78, morale: 59, standing: 68 },
+    volatility: 1.1, pettiness: 0.8,
+    grievances: [
+      'you did not say good morning',
+      'you queued incorrectly',
+      'you said "no worries" first',
+    ],
   },
   {
     id: 'Brazil', short: 'BRA', flag: '🇧🇷',
@@ -69,6 +117,11 @@ export const LEADERS: Leader[] = [
     doctrine: 'War, but make it a festival.',
     persona: 'Invites the invading army. Genuinely unbothered by anything.',
     stats: { military: 62, economy: 64, morale: 93, standing: 71 },
+    volatility: 0.4, pettiness: 0.05,
+    grievances: [
+      'you did not come to the thing',
+      'you left the thing early',
+    ],
   },
   {
     id: 'Australia', short: 'AUS', flag: '🇦🇺',
@@ -76,6 +129,12 @@ export const LEADERS: Leader[] = [
     doctrine: 'Currently at war with a bird. Will get back to you.',
     persona: 'Chaotic neutral. Unfazed by nuclear weapons, deeply concerned about local wildlife.',
     stats: { military: 58, economy: 70, morale: 84, standing: 77 },
+    volatility: 0.6, pettiness: 0.3,
+    grievances: [
+      'you sided with the bird',
+      'you called it a small spider',
+      'you have still not visited',
+    ],
   },
   {
     id: 'Canada', short: 'CAN', flag: '🇨🇦',
@@ -83,6 +142,12 @@ export const LEADERS: Leader[] = [
     doctrine: 'Sorry in advance. Sorry again.',
     persona: 'Apologises relentlessly. Becomes extremely calm and extremely dangerous when pushed.',
     stats: { military: 60, economy: 79, morale: 82, standing: 88 },
+    volatility: 0.7, pettiness: 0.15,
+    grievances: [
+      'you did not apologise back',
+      'you held the door too long',
+      'you said their name with the wrong vowel',
+    ],
   },
   {
     id: 'Switzerland', short: 'CHE', flag: '🇨🇭',
@@ -90,6 +155,12 @@ export const LEADERS: Leader[] = [
     doctrine: 'Neutral. Holds everyone’s money. Knows everything.',
     persona: 'Refuses to take a side while revealing a devastating fact about your accounts.',
     stats: { military: 41, economy: 94, morale: 75, standing: 90 },
+    volatility: 0.5, pettiness: 0.2,
+    grievances: [
+      'you were nine seconds late to a meeting',
+      'you asked what the fee was for',
+      'you made a transfer at an unusual hour',
+    ],
   },
 ]
 
@@ -204,5 +275,5 @@ export const ENDINGS: Record<EndingId, Ending> = {
 let seq = 0
 export const msg = (
   from: ChatMsg['from'], channel: ChatMsg['channel'], text: string,
-  day: number, kind: ChatMsg['kind'] = 'said',
-): ChatMsg => ({ id: `m${seq++}`, from, channel, text, kind, day })
+  day: number, kind: ChatMsg['kind'] = 'said', to?: CountryId,
+): ChatMsg => ({ id: `m${seq++}`, from, channel, text, kind, day, to })
