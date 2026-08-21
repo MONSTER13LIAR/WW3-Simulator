@@ -71,31 +71,21 @@
    panel grid visible underneath. */
 .flagcell {
   opacity: 0;
-  transform-box: fill-box;
-  transform-origin: center;
+  /* Origin comes per-cell from the markup — see dotType. */
   animation: flag-lit .5s var(--ease) var(--d, 0ms) forwards;
 }
 @keyframes flag-lit { from { opacity: 0; transform: scale(.55); } to { opacity: 1; } }
-/* Dropped once the cell has landed. Re-inserting a node restarts its CSS
-   animations, and the hover handler re-inserts — without this the entry scale
-   would replay underneath the hover scale and the flag would judder. */
-.flagcell.is-in { animation: none; opacity: 1; }
 
-/* Hover magnify, drawn by the top-layer copy rather than the cell itself.
-   The resting state is a 1:1 overlay of whichever flag it points at, so the
-   only thing that ever animates is the scale. The shadow starts at zero
-   spread rather than `none` so the filter has something to interpolate. */
-.flagzoom {
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: scale(1);
-  filter: drop-shadow(0 0 0 rgba(20, 40, 74, 0));
-  transition: transform .34s var(--ease), filter .34s var(--ease);
+/* Hover swells the flag in place — it never leaves its cell.
+   1.22 is the ceiling for that: a flag is 0.88 cells across, so at this scale
+   its edge lands at 0.537 of a cell from centre while the neighbouring flag's
+   edge is 0.56 away. Nothing overlaps, which is why this can stay pure CSS —
+   SVG has no z-index, and anything large enough to cross into the next cell
+   would be painted over by it. */
+.flagdot {
+  transition: transform .24s var(--ease);
 }
-.flagzoom.is-on {
-  transform: scale(1.75);
-  filter: drop-shadow(0 6px 16px rgba(20, 40, 74, .34));
-}
+.flagcell:hover .flagdot { transform: scale(1.22); }
 
 /* ---- supporting line + actions ---- */
 
