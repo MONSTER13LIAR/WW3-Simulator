@@ -70,37 +70,39 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .btn:disabled { opacity: .35; cursor: not-allowed; }
 
 /* ---- arrow buttons ----
-   The arrow holds a reserved slot in the padding rather than sitting in the
-   flow, so revealing it is an opacity + transform change and never a reflow. */
+   Collapsed at rest: the arrow has zero width and takes no room, so the button
+   is only as wide as its label. On hover the arrow opens to its real width and
+   the button grows by exactly that much. */
 
 .btn--go {
-  position: relative;
-  padding-right: 42px;
-  transform-origin: center;
-  transition:
-    color .16s, background .16s, border-color .16s,
-    transform .26s var(--ease), box-shadow .26s var(--ease);
+  gap: 0;
+  overflow: hidden;
+  transition: color .16s, background .16s, border-color .16s, box-shadow .26s var(--ease);
 }
-.btn--go:hover, .btn--go:focus-visible { transform: scale(1.05); }
-.btn--go:active { transform: scale(1.01); box-shadow: none; }
-
-/* back-style buttons point the other way, from the left padding */
-.btn--back { padding-right: 20px; padding-left: 42px; }
 
 .btn-arrow {
-  position: absolute;
-  right: 16px; top: 50%;
-  display: inline-flex; align-items: center;
+  display: flex; align-items: center;
+  width: 0; margin-left: 0;
   opacity: 0;
-  transform: translate(-9px, -50%);
-  transition: transform .26s var(--ease), opacity .2s linear;
+  overflow: hidden;
+  transform: translateX(-8px);
+  transition:
+    width .26s var(--ease), margin-left .26s var(--ease),
+    transform .26s var(--ease), opacity .16s linear;
 }
-.btn--back .btn-arrow { left: 16px; right: auto; transform: translate(9px, -50%); }
-
 .btn--go:hover .btn-arrow,
-.btn--go:focus-visible .btn-arrow { opacity: 1; transform: translate(0, -50%); }
+.btn--go:focus-visible .btn-arrow {
+  width: 22px; margin-left: 12px;
+  opacity: 1; transform: none;
+}
 
-.btn-arrow svg { display: block; width: 22px; height: 12px; }
+/* back-style buttons open their arrow on the other side */
+.btn--back { flex-direction: row; }
+.btn--back .btn-arrow { margin-left: 0; margin-right: 0; transform: translateX(8px); }
+.btn--back:hover .btn-arrow,
+.btn--back:focus-visible .btn-arrow { margin-left: 0; margin-right: 12px; transform: none; }
+
+.btn-arrow svg { display: block; width: 22px; height: 12px; flex: none; }
 
 button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
 

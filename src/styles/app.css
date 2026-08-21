@@ -75,15 +75,10 @@
   justify-content: center;
   animation: fade-up .6s var(--ease) 1.28s both;
 }
-/* Symmetric padding leaves room for the arrow on the right without pulling
-   the label off-centre while it is hidden. */
-.splash-actions .btn { padding: 17px 46px; font-size: 12px; letter-spacing: 0.16em; }
+.splash-actions .btn { padding: 17px 30px; font-size: 12px; letter-spacing: 0.16em; }
 
 .splash-actions .btn--go:hover,
-.splash-actions .btn--go:focus-visible {
-  transform: scale(1.055);
-  box-shadow: 0 12px 30px rgba(0,0,0,.5);
-}
+.splash-actions .btn--go:focus-visible { box-shadow: 0 12px 30px rgba(0,0,0,.5); }
 
 .splash button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
 
@@ -379,7 +374,10 @@
 }
 .card:hover .card-go, .card:focus-visible .card-go { color: var(--accent); opacity: 1; }
 
-.card-go .btn-arrow { right: 0; top: auto; bottom: 1px; transform: translateX(-9px); }
+.card-go .btn-arrow {
+  position: absolute; right: 0; bottom: 1px;
+  width: 22px; margin: 0;
+}
 .card:hover .card-go .btn-arrow,
 .card:focus-visible .card-go .btn-arrow { opacity: 1; transform: none; }
 
