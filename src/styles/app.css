@@ -43,8 +43,24 @@
 }
 
 .dotgrid { display: block; overflow: visible; }
-.wordmark-1 { width: min(52vw, 560px); }
+
+/* WW3 is scaled rather than widened. A transform doesn't touch the layout box,
+   so SIMULATOR, the tagline and the buttons hold their exact positions; with the
+   origin pinned to the bottom edge the panel can only grow upward, into the
+   empty space it already had above it. */
+.wordmark-1 {
+  width: min(52vw, 560px);
+  --ww3-scale: 1.38;
+  transform: scale(var(--ww3-scale));
+  transform-origin: bottom center;
+}
 .wordmark-2 { width: min(76vw, 880px); }
+
+/* Short viewports have no headroom to grow into — back it off before the top
+   row of dots reaches the edge. */
+@media (max-height: 800px) { .wordmark-1 { --ww3-scale: 1.20; } }
+@media (max-height: 720px) { .wordmark-1 { --ww3-scale: 1.08; } }
+@media (max-height: 640px) { .wordmark-1 { --ww3-scale: 1; } }
 
 .dot {
   fill: var(--text);
