@@ -85,10 +85,16 @@ export function dotType(text: string, opts: Options = {}): string {
         if (flagged.has(i) && lit) {
           const code = flagAt(litSeq++)
           used.push(code)
+          /* Two layers on purpose. The wrapper owns the entry animation, which
+             runs with fill-mode forwards and would otherwise keep pinning
+             transform after it finished, outranking the hover rule. The inner
+             <use> is left free to be transformed on hover. */
           dots.push(
+            `<g class="flagcell" style="--d:${step}ms">` +
             `<use href="#flag-${code}" x="${cx + 0.5 - FLAG_R}" y="${y + 0.5 - FLAG_R}"` +
             ` width="${FLAG_R * 2}" height="${FLAG_R * 2}"` +
-            ` class="flagdot flagdot--lit" style="--d:${step}ms"/>`
+            ` class="flagdot" data-country="${code}"/>` +
+            `</g>`
           )
           continue
         }
@@ -102,6 +108,17 @@ export function dotType(text: string, opts: Options = {}): string {
     }
   })
 
+  /* The magnifier. SVG paints in document order and has no z-index, so a flag
+     that grew in place would be covered by every cell declared after it. Rather
+     than re-parent the hovered cell — which drops :hover in Chromium, because
+     hover is not re-evaluated when the node under the cursor is moved — this
+     sits last, permanently on top, and mirrors whichever flag is hovered. It
+     rests at exactly the size and position of the cell it is covering, so
+     shrinking back is seamless. */
+  const zoom = used.length
+    ? '<use class="flagzoom" aria-hidden="true" pointer-events="none"/>'
+    : ''
+
   return `<svg class="dotgrid ${className}" viewBox="0 0 ${cols} ${ROWS}"
-    role="img" aria-label="${text}" preserveAspectRatio="xMidYMid meet">${flagDefs(used)}${dots.join('')}</svg>`
+    role="img" aria-label="${text}" preserveAspectRatio="xMidYMid meet">${flagDefs(used)}${dots.join('')}${zoom}</svg>`
 }

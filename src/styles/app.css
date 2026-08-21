@@ -68,13 +68,33 @@
    Same cascade as the dots. Unlit cells are drained to near-paper so the flags
    that spell the word stay the only thing you read; the ghosts just keep the
    panel grid visible underneath. */
-.flagdot {
+.flagcell {
   opacity: 0;
   transform-box: fill-box;
   transform-origin: center;
   animation: flag-lit .5s var(--ease) var(--d, 0ms) forwards;
 }
 @keyframes flag-lit { from { opacity: 0; transform: scale(.55); } to { opacity: 1; } }
+/* Dropped once the cell has landed. Re-inserting a node restarts its CSS
+   animations, and the hover handler re-inserts — without this the entry scale
+   would replay underneath the hover scale and the flag would judder. */
+.flagcell.is-in { animation: none; opacity: 1; }
+
+/* Hover magnify, drawn by the top-layer copy rather than the cell itself.
+   The resting state is a 1:1 overlay of whichever flag it points at, so the
+   only thing that ever animates is the scale. The shadow starts at zero
+   spread rather than `none` so the filter has something to interpolate. */
+.flagzoom {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(1);
+  filter: drop-shadow(0 0 0 rgba(20, 40, 74, 0));
+  transition: transform .34s var(--ease), filter .34s var(--ease);
+}
+.flagzoom.is-on {
+  transform: scale(1.75);
+  filter: drop-shadow(0 6px 16px rgba(20, 40, 74, .34));
+}
 
 /* ---- supporting line + actions ---- */
 

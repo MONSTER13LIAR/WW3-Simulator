@@ -64,6 +64,8 @@ export function renderSplash(): string {
 }
 
 export function bindSplash(root: HTMLElement) {
+  bindFlagHover(root)
+
   root.querySelector<HTMLElement>('[data-go="select"]')
     ?.addEventListener('click', () => goto('select'))
 
@@ -95,4 +97,43 @@ export function bindSplash(root: HTMLElement) {
   opener.addEventListener('click', open)
   root.querySelectorAll<HTMLElement>('[data-warn-close]')
     .forEach(el => el.addEventListener('click', close))
+}
+
+/**
+ * Points the top-layer magnifier at whichever flag is under the cursor.
+ *
+ * Nothing about the hovered cell is touched — no class, no re-parenting — because
+ * both drop :hover out from under the pointer. The magnifier is a separate <use>
+ * that already sits last in the panel, so it paints over every cell without any
+ * reordering, and at rest it is a pixel-exact overlay of the flag it mirrors.
+ * That makes shrinking back seamless: the copy lands precisely on the original.
+ */
+function bindFlagHover(root: HTMLElement) {
+  const panel = root.querySelector<SVGSVGElement>('.wordmark-1')
+  const zoom = panel?.querySelector<SVGUseElement>('.flagzoom')
+  if (!panel || !zoom) return
+
+  const GEOMETRY = ['href', 'x', 'y', 'width', 'height'] as const
+
+  panel.addEventListener('pointerover', e => {
+    const flag = (e.target as Element).closest<SVGUseElement>('.flagdot')
+    if (!flag) return
+
+    for (const attr of GEOMETRY) {
+      zoom.setAttribute(attr, flag.getAttribute(attr) ?? '')
+    }
+
+    // Moving straight from one flag to another would otherwise slide the
+    // magnifier across at full size. Drop it back to 1:1, flush the change,
+    // then grow — so every flag gets the same magnify from rest.
+    // Deliberately not reset between flags. Forcing it back to 1:1 so each flag
+    // re-grows means removing and re-adding the class, and the browser collapses
+    // that to no change at all unless it is split across frames — which then
+    // races the pointer. Left alone it behaves like a lens: it grows once on the
+    // way in, tracks whichever flag is under the cursor, and shrinks on the way
+    // out. Fewer moving parts and nothing to stutter.
+    zoom.classList.add('is-on')
+  })
+
+  panel.addEventListener('pointerleave', () => zoom.classList.remove('is-on'))
 }
