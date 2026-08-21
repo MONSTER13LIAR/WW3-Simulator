@@ -1,10 +1,14 @@
 import { goto } from '../state/store'
 import { dotType } from '../components/dotType'
 import { arrowRight } from '../components/arrow'
+import { pillar } from '../components/pillar'
 
 export function renderSplash(): string {
   return `
   <div class="screen splash">
+    ${pillar('left')}
+    ${pillar('right')}
+
     <main class="splash-stage">
       <div class="wordmark">
         ${dotType('WW3', { className: 'wordmark-1', tracking: 2, flagGlyphs: [0, 1, 2] })}
