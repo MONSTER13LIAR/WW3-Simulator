@@ -77,12 +77,13 @@ export function dotType(text: string, opts: Options = {}): string {
         // Diagonal cascade: dots light up left-to-right, top-to-bottom.
         const step = delayOffset + cx * 7 + y * 4
 
-        /* In a flagged glyph only the lit cells become flags. The unlit ones
-           stay plain dots — drawn at the flag radius so the grid pitch matches —
-           because real flags ghosted back far enough to sit behind the word
-           carry wildly uneven lightness (Japan and Switzerland all but vanish,
-           Germany stays dark) and turn the panel to noise. */
-        if (flagged.has(i) && lit) {
+        /* A flagged glyph is flags and nothing else — its unlit cells are
+           dropped rather than drawn as dots, so the countries read as the
+           letterform on their own. Unflagged glyphs keep the full panel grid,
+           which is what still makes SIMULATOR read as a display board. */
+        if (flagged.has(i) && !lit) continue
+
+        if (flagged.has(i)) {
           const code = flagAt(litSeq++)
           used.push(code)
           /* Two layers on purpose. The wrapper owns the entry animation, which
@@ -106,9 +107,8 @@ export function dotType(text: string, opts: Options = {}): string {
           continue
         }
 
-        const r = flagged.has(i) ? FLAG_R : DOT_R
         dots.push(
-          `<circle cx="${cx + 0.5}" cy="${y + 0.5}" r="${r}"` +
+          `<circle cx="${cx + 0.5}" cy="${y + 0.5}" r="${DOT_R}"` +
           ` class="dot${lit ? ' dot--lit' : ''}" style="--d:${step}ms"/>`
         )
       }
