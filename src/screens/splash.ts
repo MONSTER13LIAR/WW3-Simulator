@@ -71,7 +71,8 @@ export function bindSplash(root: HTMLElement) {
   root.querySelector<HTMLElement>('[data-go="select"]')
     ?.addEventListener('click', () => goto('select'))
 
-  // "Learn how to play" is UI-only for now — no screen behind it yet.
+  root.querySelector<HTMLElement>('[data-go="howto"]')
+    ?.addEventListener('click', () => goto('howto'))
 
   const overlay = root.querySelector<HTMLElement>('[data-overlay]')!
   const opener = root.querySelector<HTMLButtonElement>('[data-warn-open]')!

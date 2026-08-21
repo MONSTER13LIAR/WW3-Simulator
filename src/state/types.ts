@@ -78,7 +78,7 @@ export interface Ending {
   tone: 'bad' | 'good' | 'absurd'
 }
 
-export type Screen = 'splash' | 'select' | 'game' | 'ending'
+export type Screen = 'splash' | 'howto' | 'select' | 'game' | 'ending'
 
 export interface GameState {
   screen: Screen

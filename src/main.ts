@@ -5,6 +5,7 @@ import './styles/app.css'
 import { state, subscribe } from './state/store'
 import type { Screen } from './state/types'
 import { renderSplash, bindSplash } from './screens/splash'
+import { renderHowTo, bindHowTo } from './screens/howTo'
 import { renderSelect, bindSelect } from './screens/countrySelect'
 import { renderGame, bindGame, updateGame } from './screens/game'
 import { renderEnding, bindEnding } from './screens/ending'
@@ -18,6 +19,7 @@ let mountedScreen: Screen | null = null
 function mount() {
   switch (state.screen) {
     case 'splash': app.innerHTML = renderSplash(); bindSplash(app); break
+    case 'howto':  app.innerHTML = renderHowTo();  bindHowTo(app);  break
     case 'select': app.innerHTML = renderSelect(); bindSelect(app); break
     case 'game':   app.innerHTML = renderGame();   bindGame(app);   break
     case 'ending': app.innerHTML = renderEnding(); bindEnding(app); break

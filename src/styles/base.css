@@ -20,7 +20,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 ::selection { background: var(--accent); color: var(--ink-1000); }
 /* The lobby runs a light palette, so its selection has to be re-stated here —
    ::selection on <body> can't see tokens scoped to a screen further down. */
-.splash ::selection, .select ::selection { background: #14284a; color: #faf9f6; }
+.splash ::selection, .select ::selection, .howto ::selection { background: #14284a; color: #faf9f6; }
 
 /* ---- shared primitives ---- */
 

@@ -51,7 +51,7 @@
    ink blue for the institution, one red for escalation. Scoped to those two
    screens rather than swapped into :root, because the in-game map, chat and HUD
    read the same token names and must stay dark. */
-.splash, .select {
+.splash, .select, .howto {
   --ink-1000: #faf9f6;
   --ink-950:  #faf9f6;
   --ink-900:  #f3f1ec;
