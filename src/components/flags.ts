@@ -39,6 +39,19 @@ export const FLAG_CODES = [
 ].filter(code => code in SOURCE)
 
 /**
+ * The edge ring. Flags with white fields — Japan, Singapore, Poland, Argentina,
+ * Czechia — dissolve into a paper background without one, which breaks the
+ * letterform they are supposed to be spelling. Drawn wholly inside r=256 so the
+ * ring never enlarges the circle: an outward stroke would push each flag past
+ * its cell and start overlapping neighbours once hover scales it.
+ *
+ * On dark flags it is all but invisible, which is the point — only the ones that
+ * need an edge get a visible one.
+ */
+const RING = '<circle cx="256" cy="256" r="249" fill="none"'
+  + ' stroke="rgba(20,40,74,.42)" stroke-width="14"/>'
+
+/**
  * Rewrites one flag file into a <symbol>.
  *
  * Every source file declares its circular mask as id="a". Inlining more than one of
@@ -52,7 +65,8 @@ function toSymbol(code: string): string {
     .replace(/id="a"/g, `id="fm-${code}"`)
     .replace(/url\(#a\)/g, `url(#fm-${code})`)
 
-  return `<symbol id="flag-${code}" viewBox="0 0 512 512">${body}</symbol>`
+  // Ring last, so it sits over the artwork rather than under the mask.
+  return `<symbol id="flag-${code}" viewBox="0 0 512 512">${body}${RING}</symbol>`
 }
 
 /** A <defs> block holding one <symbol> per distinct code, in the order given. */
