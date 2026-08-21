@@ -7,7 +7,7 @@ export function renderSplash(): string {
   <div class="screen splash">
     <main class="splash-stage">
       <div class="wordmark">
-        ${dotType('WW3', { className: 'wordmark-1' })}
+        ${dotType('WW3', { className: 'wordmark-1', tracking: 2, flagGlyphs: [0, 1, 2] })}
         ${dotType('SIMULATOR', { className: 'wordmark-2', delayOffset: 240 })}
       </div>
 

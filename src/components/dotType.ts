@@ -8,6 +8,12 @@
  * Glyphs are 5x7 bitmaps, the classic display-board cell.
  */
 
+import { flagDefs, flagAt } from './flags'
+
+/** Flag cells are fatter than plain dots, so the panel reads as a ball pit. */
+const FLAG_R = 0.44
+const DOT_R = 0.34
+
 const ROWS = 7
 const COLS = 5
 
@@ -34,6 +40,12 @@ type Options = {
   className?: string
   /** Dots animate in from this index onward, so stacked lines cascade. */
   delayOffset?: number
+  /**
+   * Glyph indices whose cells are drawn as circular country flags instead of
+   * plain dots. Lit cells take the front of the flag list — the playable
+   * states — and the unlit ones fill in behind the word.
+   */
+  flagGlyphs?: number[]
 }
 
 /**
@@ -41,12 +53,17 @@ type Options = {
  * caller sizes it with plain CSS width and the dots stay perfectly round.
  */
 export function dotType(text: string, opts: Options = {}): string {
-  const { tracking = 1, className = '', delayOffset = 0 } = opts
+  const { tracking = 1, className = '', delayOffset = 0, flagGlyphs = [] } = opts
+  const flagged = new Set(flagGlyphs)
   const chars = [...text.toUpperCase()].filter(c => c in FONT)
   if (!chars.length) return ''
 
   const cols = chars.length * COLS + (chars.length - 1) * tracking
   const dots: string[] = []
+  /* Only the lit cells carry artwork, so this collects exactly the countries
+     that need a <symbol> emitting. */
+  const used: string[] = []
+  let litSeq = 0
 
   chars.forEach((char, i) => {
     const glyph = FONT[char]
@@ -59,8 +76,26 @@ export function dotType(text: string, opts: Options = {}): string {
         const cx = originX + x
         // Diagonal cascade: dots light up left-to-right, top-to-bottom.
         const step = delayOffset + cx * 7 + y * 4
+
+        /* In a flagged glyph only the lit cells become flags. The unlit ones
+           stay plain dots — drawn at the flag radius so the grid pitch matches —
+           because real flags ghosted back far enough to sit behind the word
+           carry wildly uneven lightness (Japan and Switzerland all but vanish,
+           Germany stays dark) and turn the panel to noise. */
+        if (flagged.has(i) && lit) {
+          const code = flagAt(litSeq++)
+          used.push(code)
+          dots.push(
+            `<use href="#flag-${code}" x="${cx + 0.5 - FLAG_R}" y="${y + 0.5 - FLAG_R}"` +
+            ` width="${FLAG_R * 2}" height="${FLAG_R * 2}"` +
+            ` class="flagdot flagdot--lit" style="--d:${step}ms"/>`
+          )
+          continue
+        }
+
+        const r = flagged.has(i) ? FLAG_R : DOT_R
         dots.push(
-          `<circle cx="${cx + 0.5}" cy="${y + 0.5}" r="0.34"` +
+          `<circle cx="${cx + 0.5}" cy="${y + 0.5}" r="${r}"` +
           ` class="dot${lit ? ' dot--lit' : ''}" style="--d:${step}ms"/>`
         )
       }
@@ -68,5 +103,5 @@ export function dotType(text: string, opts: Options = {}): string {
   })
 
   return `<svg class="dotgrid ${className}" viewBox="0 0 ${cols} ${ROWS}"
-    role="img" aria-label="${text}" preserveAspectRatio="xMidYMid meet">${dots.join('')}</svg>`
+    role="img" aria-label="${text}" preserveAspectRatio="xMidYMid meet">${flagDefs(used)}${dots.join('')}</svg>`
 }
