@@ -80,7 +80,8 @@ export function renderRail(): string {
 
   const l = ch === 'GLOBAL' ? null : LEADER_BY_ID.get(ch)
   const title = l ? `${l.flag} ${l.short}` : '🌐 Global Channel'
-  const sub = l ? l.leader : `${LEADERS.length} heads of state connected`
+  const alive = LEADERS.filter(x => state.relations[x.id] !== 'destroyed').length
+  const sub = l ? l.leader : `${alive} of ${LEADERS.length} heads of state connected`
   const quick = (l ? QUICK_DM : QUICK_GLOBAL)
     .map(q => `<button class="qb" data-quick="${esc(q)}">${esc(q)}</button>`).join('')
 

@@ -451,6 +451,48 @@
 .topbar .brand span { color: var(--accent); }
 .topbar .spacer { flex: 1; }
 
+/* Resign ends the whole run — it gets the quietest treatment on the bar and a
+   two-step confirm, not the corner slot and never the visual weight of an
+   order. Armed state turns red so the second click knows what it is doing. */
+.quit {
+  padding: 7px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--r1);
+  font-size: 10px; letter-spacing: .13em; text-transform: uppercase;
+  color: var(--text-faint);
+  transition: color .16s, border-color .16s, background .16s;
+}
+.quit:hover { color: var(--text-dim); border-color: var(--line); }
+.quit.is-armed { color: #fff; background: var(--war); border-color: var(--war); }
+
+/* The chat toggle owns the corner: it is the layout control the player will
+   actually reach for repeatedly, and it sits directly above the rail it moves. */
+.rail-toggle {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--r1);
+  font-size: 10px; letter-spacing: .13em; text-transform: uppercase;
+  color: var(--text-dim);
+  transition: color .16s, border-color .16s, background .16s;
+}
+.rail-toggle:hover { color: var(--text); border-color: var(--line-strong); background: var(--ink-850); }
+.toggle-arrow { font-size: 12px; line-height: 1; color: var(--text-faint); }
+
+.rail-badge {
+  position: absolute; top: -7px; right: -7px;
+  min-width: 16px; height: 16px;
+  display: grid; place-items: center;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--war);
+  color: #fff;
+  font-size: 9px; font-weight: 700; letter-spacing: 0;
+  animation: badge-in .3s var(--ease);
+}
+@keyframes badge-in { from { transform: scale(.4); opacity: 0; } }
+
 .chip {
   display: inline-flex; align-items: center; gap: var(--s2);
   font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
@@ -461,7 +503,20 @@
 .chip--defcon.hot b { color: var(--war); }
 .chip--dead.on b { color: var(--war); }
 
-.game-body { display: grid; grid-template-columns: minmax(0, 1fr) 384px; min-height: 0; }
+.game-body {
+  --rail-w: 384px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--rail-w);
+  min-height: 0;
+  transition: grid-template-columns .32s var(--ease);
+}
+.game-body.rail-closed { grid-template-columns: minmax(0, 1fr) 0px; }
+
+/* The slot clips; the rail inside keeps its full width and hugs the viewport
+   edge, so collapsing reads as the panel sliding off screen rather than its
+   contents rewrapping at every frame of the animation. */
+.rail-slot { overflow: hidden; min-width: 0; display: flex; justify-content: flex-end; }
+.rail-slot .rail { width: var(--rail-w); flex: none; }
 
 .stage { display: grid; grid-template-rows: auto minmax(0,1fr) auto; min-width: 0; }
 
@@ -490,12 +545,30 @@
 .hud-pop b { font-family: var(--font-display); font-size: 13px; letter-spacing: -.01em; }
 
 .hud-stats { display: flex; gap: var(--s5); margin-left: auto; }
-.stat { display: grid; gap: 4px; min-width: 84px; }
+.stat { display: grid; gap: 5px; min-width: 108px; }
 .stat > span { font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint); }
-.stat > i { height: 3px; background: var(--ink-750); border-radius: 2px; display: block; }
-.stat > i > b { display: block; height: 100%; background: var(--text-dim); border-radius: 2px; transition: width .5s var(--ease); }
-.stat.low > i > b { background: var(--war); }
-.stat.hi  > i > b { background: var(--accent); }
+
+/* Bar plus number. The number is the actual fix: a five-point cost is
+   invisible on a hundred-pixel bar and unmissable as a digit change. */
+.stat-track { display: flex; align-items: center; gap: var(--s2); }
+.stat-track i { flex: 1; height: 4px; background: var(--ink-750); border-radius: 2px; display: block; overflow: hidden; }
+.stat-track b { display: block; height: 100%; background: var(--text-dim); border-radius: 2px; transition: width .5s var(--ease); }
+.stat-n {
+  font-style: normal;
+  font-size: 12px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  min-width: 20px; text-align: right;
+}
+.stat.low .stat-track b { background: var(--war); }
+.stat.low .stat-n { color: var(--war); }
+.stat.hi  .stat-track b { background: var(--accent); }
+
+/* Every order should visibly cost or earn something; the pulse is that receipt. */
+.stat-n.went-up   { animation: stat-up .9s var(--ease); }
+.stat-n.went-down { animation: stat-down .9s var(--ease); }
+@keyframes stat-up   { 0% { color: #34b795; transform: translateY(2px); } 60% { color: #34b795; } }
+@keyframes stat-down { 0% { color: var(--war); transform: translateY(-2px); } 60% { color: var(--war); } }
 
 /* ---- map ---- */
 
@@ -773,8 +846,9 @@
 .devbar button:hover { color: var(--accent); border-color: var(--accent-dim); }
 
 @media (max-width: 1080px) {
-  .game-body { grid-template-columns: minmax(0,1fr) 320px; }
+  .game-body { --rail-w: 320px; }
   .hud-stats { gap: var(--s4); }
+  .stat { min-width: 92px; }
 }
 
 /* ============================================================ PILLARS */
