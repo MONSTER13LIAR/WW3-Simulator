@@ -7,8 +7,9 @@
   --ink-800:  #161a23;
   --ink-750:  #1c212c;
 
-  --line:      #232936;
-  --line-soft: #191e28;
+  --line:        #232936;
+  --line-soft:   #191e28;
+  --line-strong: #38414f;
 
   /* type */
   --text:       #e7e9ee;
@@ -43,4 +44,38 @@
   --r1: 3px; --r2: 6px; --r3: 10px;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---- lobby palette ----
+   The landing page and the country grid are the briefing phase: paper ground,
+   ink blue for the institution, one red for escalation. Scoped to those two
+   screens rather than swapped into :root, because the in-game map, chat and HUD
+   read the same token names and must stay dark. */
+.splash, .select {
+  --ink-1000: #faf9f6;
+  --ink-950:  #faf9f6;
+  --ink-900:  #f3f1ec;
+  --ink-850:  #efede7;
+  --ink-800:  #e4e7ee;
+  --ink-750:  #dde3ec;
+
+  --line:        #c7d0df;
+  --line-soft:   #dde3ec;
+  --line-strong: #8fa2c0;
+
+  --text:       #14284a;
+  --text-dim:   #4a5b78;
+  --text-faint: #616f88;
+
+  --accent:      #3d5a8c;
+  --accent-dim:  #8fa2c0;
+  --accent-glow: rgba(61, 90, 140, 0.18);
+
+  /* the one red — war, alerts, the card you're about to pick.
+     --signal-ink is the text-safe stop; the bright one is for fills only. */
+  --signal:     #d93a2b;
+  --signal-ink: #cc3123;
+
+  /* Re-declare, don't just redefine: tokens alone don't repaint inherited text. */
+  color: var(--text);
 }

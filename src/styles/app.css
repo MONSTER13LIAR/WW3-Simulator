@@ -12,8 +12,8 @@
   content: '';
   position: absolute; inset: 0;
   background:
-    radial-gradient(760px 380px at 50% 26%, rgba(245,165,36,.07), transparent 72%),
-    repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,.011) 39px 40px);
+    radial-gradient(820px 420px at 50% 26%, rgba(61,90,140,.10), transparent 72%),
+    repeating-linear-gradient(0deg, transparent 0 39px, rgba(20,40,74,.035) 39px 40px);
   pointer-events: none;
 }
 
@@ -47,14 +47,14 @@
 .wordmark-2 { width: min(76vw, 880px); }
 
 .dot {
-  fill: #fff;
+  fill: var(--text);
   opacity: 0;
   animation: dot-dim .5s var(--ease) var(--d, 0ms) forwards;
 }
 .dot--lit { animation-name: dot-lit; }
-@keyframes dot-dim { to { opacity: .05; } }
+@keyframes dot-dim { to { opacity: .11; } }
 .wordmark-1 .dot:not(.dot--lit) { animation-name: dot-dim-lg; }
-@keyframes dot-dim-lg { to { opacity: .035; } }
+@keyframes dot-dim-lg { to { opacity: .09; } }
 @keyframes dot-lit { from { opacity: 0; } to { opacity: 1; } }
 
 /* ---- supporting line + actions ---- */
@@ -78,9 +78,20 @@
 .splash-actions .btn { padding: 17px 30px; font-size: 12px; letter-spacing: 0.16em; }
 
 .splash-actions .btn--go:hover,
-.splash-actions .btn--go:focus-visible { box-shadow: 0 12px 30px rgba(0,0,0,.5); }
+.splash-actions .btn--go:focus-visible { box-shadow: 0 10px 24px rgba(20,40,74,.13); }
 
-.splash button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
+/* Solid ink on paper — the outlined amber treatment has no weight on a light
+   ground. Scoped, so .btn--primary on the dark ending screen is untouched. */
+.splash .btn--primary {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--ink-1000);
+}
+.splash .btn--primary:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--ink-1000);
+}
 
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(8px); }
@@ -99,14 +110,14 @@
 .warn-btn {
   display: inline-flex; align-items: center; gap: var(--s2);
   padding: 9px 14px;
-  border: 1px solid var(--accent-dim);
+  border: 1px solid rgba(217,58,43,.42);
   border-radius: var(--r1);
-  background: rgba(245,165,36,.05);
-  color: var(--accent);
+  background: rgba(217,58,43,.06);
+  color: var(--signal-ink);
   font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
   transition: background .16s, color .16s, border-color .16s;
 }
-.warn-btn:hover { background: var(--accent); color: var(--ink-1000); border-color: var(--accent); }
+.warn-btn:hover { background: var(--signal); color: #fff; border-color: var(--signal); }
 
 .warn-glyph {
   display: grid; place-items: center;
@@ -114,21 +125,21 @@
   border: 1px solid currentColor; border-radius: 50%;
   font-size: 9px; font-weight: 700; line-height: 1;
 }
-.warn-glyph--lg { width: 22px; height: 22px; font-size: 12px; color: var(--accent); }
+.warn-glyph--lg { width: 22px; height: 22px; font-size: 12px; color: var(--signal); }
 
 /* Comic speech bubble pointing back at the Disclaimer button. */
 .warn-bubble {
   position: relative;
   margin-left: 12px;
   padding: 7px 13px;
-  background: #fff;
+  background: var(--text);
   color: var(--ink-1000);
   border-radius: 13px;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.01em;
   white-space: nowrap;
-  box-shadow: 0 8px 24px rgba(0,0,0,.55);
+  box-shadow: 0 8px 20px rgba(20,40,74,.20);
   transform-origin: left center;
   will-change: transform;
   animation:
@@ -142,7 +153,7 @@
   width: 0; height: 0;
   border: 6px solid transparent;
   border-left: 0;
-  border-right-color: #fff;
+  border-right-color: var(--text);
   transform: translateY(-50%);
 }
 @keyframes bubble-pop {
@@ -167,7 +178,7 @@
 
 .overlay-scrim {
   position: absolute; inset: 0;
-  background: rgba(5, 6, 8, .62);
+  background: rgba(20, 40, 74, .42);
   backdrop-filter: blur(14px) saturate(.7);
   -webkit-backdrop-filter: blur(14px) saturate(.7);
   opacity: 0;
@@ -180,9 +191,9 @@
   width: min(560px, 100%);
   background: var(--ink-900);
   border: 1px solid var(--line);
-  border-top: 2px solid var(--accent);
+  border-top: 2px solid var(--signal);
   border-radius: var(--r2);
-  box-shadow: 0 30px 80px rgba(0,0,0,.6);
+  box-shadow: 0 24px 64px rgba(20,40,74,.22);
   opacity: 0;
   transform: translateY(10px) scale(.985);
   transition: opacity .22s var(--ease), transform .22s var(--ease);
@@ -237,12 +248,15 @@
 
 /* ============================================================ SELECT */
 
-.select { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100%; }
+.select {
+  display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100%;
+  background: var(--ink-1000);
+}
 
 .select-head {
   padding: var(--s6) var(--s7) var(--s5);
   display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s5);
-  border-bottom: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line);
 }
 .select-head h2 {
   font-family: var(--font-display); font-weight: 800;
@@ -261,6 +275,7 @@
 
 .select-grid {
   overflow-y: auto;
+  background: var(--ink-900);
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   align-content: start;
@@ -282,10 +297,10 @@
 }
 .card::after {
   content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
-  background: var(--accent); transform: scaleY(0); transform-origin: top;
+  background: var(--signal); transform: scaleY(0); transform-origin: top;
   transition: transform .22s var(--ease);
 }
-.card:hover, .card:focus-visible { background: #0f1218; }
+.card:hover, .card:focus-visible { background: #fff; }
 .card:hover::after, .card:focus-visible::after { transform: scaleY(1); }
 .card:focus-visible { outline: none; }
 
@@ -303,8 +318,8 @@
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .card-no {
-  font-size: 10px; letter-spacing: .1em;
-  color: var(--text-faint); opacity: .5;
+  font-size: 10px; letter-spacing: .1em; font-weight: 700;
+  color: var(--accent); opacity: .55;
   align-self: flex-start;
 }
 
@@ -372,7 +387,7 @@
   opacity: .7;
   transition: color .18s, opacity .18s;
 }
-.card:hover .card-go, .card:focus-visible .card-go { color: var(--accent); opacity: 1; }
+.card:hover .card-go, .card:focus-visible .card-go { color: var(--signal); opacity: 1; }
 
 .card-go .btn-arrow {
   position: absolute; right: 0; bottom: 1px;

@@ -18,6 +18,9 @@ body {
 
 button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
 ::selection { background: var(--accent); color: var(--ink-1000); }
+/* The lobby runs a light palette, so its selection has to be re-stated here —
+   ::selection on <body> can't see tokens scoped to a screen further down. */
+.splash ::selection, .select ::selection { background: #14284a; color: #faf9f6; }
 
 /* ---- shared primitives ---- */
 
@@ -51,7 +54,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   color: var(--text-dim);
   transition: color .16s, border-color .16s, background .16s;
 }
-.btn:hover { color: var(--text); border-color: #38414f; background: var(--ink-850); }
+.btn:hover { color: var(--text); border-color: var(--line-strong); background: var(--ink-850); }
 
 .btn--primary {
   border-color: var(--accent-dim);
