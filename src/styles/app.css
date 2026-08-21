@@ -132,6 +132,9 @@
 
 .warn-anchor {
   position: absolute;
+  /* Above .splash-stage, which is a full-viewport box sitting at z-index 2 to
+     clear the columns. Without this it covers the corner and eats the click. */
+  z-index: 3;
   left: var(--s6); bottom: var(--s6);
   display: flex; align-items: center; gap: var(--s3);
   animation: fade-up .6s var(--ease) 1.5s both;
