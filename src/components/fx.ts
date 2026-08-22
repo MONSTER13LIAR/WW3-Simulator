@@ -136,6 +136,47 @@ function pulseVignette() {
 }
 
 /**
+ * Something sails, flies or drives from one state toward another: a marker
+ * travels along the line and holds at the midpoint with a label for a while.
+ * Blockades, deployments, convoys — the world moving where the player can see it.
+ */
+export function deploy(fromId: string, toId: string, icon: string, label: string, holdMs = 22_000) {
+  const svg = overlay()
+  if (!svg) return
+  const [x1, y1] = centroidOf(fromId)
+  const [x2, y2] = centroidOf(toId)
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2
+  const group = el('g', { class: 'fx fx-deploy' })
+  svg.appendChild(group)
+
+  group.appendChild(el('line', { class: 'fx-route', x1, y1, x2: mx, y2: my }))
+  const mover = el('text', { class: 'fx-unit', 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 14 })
+  mover.textContent = icon
+  const travel = reduced() ? 0 : 1600
+  if (travel) mover.appendChild(el('animateMotion', { dur: `${travel}ms`, fill: 'freeze', path: `M${x1},${y1} L${mx},${my}` }))
+  else { mover.setAttribute('x', String(mx)); mover.setAttribute('y', String(my)) }
+  group.appendChild(mover)
+
+  setTimeout(() => {
+    group.appendChild(el('circle', { class: 'fx-hold', cx: mx, cy: my, r: 7 }))
+    const tag = el('text', { class: 'fx-label fx-label--deploy', x: mx, y: my + 14, 'text-anchor': 'middle' })
+    tag.textContent = label
+    group.appendChild(tag)
+  }, travel)
+
+  setTimeout(() => { group.classList.add('fx-out'); setTimeout(() => group.remove(), 900) }, holdMs)
+}
+
+/** A country flashes on the map — hostile red for threats, amber for something happening there. */
+export function pulseCountry(id: string, tone: 'hostile' | 'hit') {
+  const path = document.querySelector<SVGPathElement>(`path.country[data-id="${CSS.escape(id)}"]`)
+  if (!path) return
+  const cls = tone === 'hostile' ? 'is-pulsing-hostile' : 'is-pulsing-hit'
+  path.classList.remove(cls); void path.getBoundingClientRect(); path.classList.add(cls)
+  setTimeout(() => path.classList.remove(cls), 2400)
+}
+
+/**
  * The one-time alarm: the world just went to total war. A red stamp with the
  * exclamation, a longer shake, the vignette left burning. Lives on <body> like
  * the overlay so no re-render can cut it short.

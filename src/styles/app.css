@@ -803,6 +803,19 @@
   100% { transform: translate(0,0) }
 }
 
+/* ---- world fx: deployments and pulses ---- */
+.fx-route { stroke: rgba(255,255,255,.35); stroke-width: .7; stroke-dasharray: 2 2; }
+.fx-unit { fill: #fff; filter: drop-shadow(0 0 3px rgba(0,0,0,.9)); }
+.fx-hold { fill: rgba(245,165,36,.14); stroke: var(--accent); stroke-width: .8; animation: fx-hold 1.8s ease-in-out infinite; }
+@keyframes fx-hold { 50% { r: 9; stroke-opacity: .45; } }
+.fx-label--deploy { font-size: 5.5px; fill: var(--accent); letter-spacing: .12em; font-weight: 700; paint-order: stroke; stroke: rgba(0,0,0,.8); stroke-width: 1.6px; }
+.fx-deploy { transition: opacity .9s var(--ease); }
+.fx-deploy.fx-out { opacity: 0; }
+.country.is-pulsing-hostile { animation: pulse-hostile .8s ease-in-out 3; }
+.country.is-pulsing-hit { animation: pulse-hit .8s ease-in-out 3; }
+@keyframes pulse-hostile { 50% { fill: var(--war); fill-opacity: 1; } }
+@keyframes pulse-hit { 50% { fill: var(--accent); fill-opacity: 1; } }
+
 /* ---- strike fx ---- */
 
 .fx-arc {

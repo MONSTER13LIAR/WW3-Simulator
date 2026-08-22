@@ -11,6 +11,7 @@ import { renderGame, bindGame, updateGame } from './screens/game'
 import { renderEnding, bindEnding } from './screens/ending'
 import { clearFx } from './components/fx'
 import { stopClock } from './state/turn'
+import { stopWorld } from './state/world'
 import { startPersisting, restore } from './state/persist'
 
 // dev only: lets a browser driver read the store without a UI round-trip
@@ -39,7 +40,7 @@ function mount() {
  * the game screen has anything that changes while it is open.
  */
 function render() {
-  if (state.screen !== 'game') { clearFx(); stopClock() }
+  if (state.screen !== 'game') { clearFx(); stopClock(); stopWorld() }
 
   if (state.screen !== mountedScreen) {
     mount()

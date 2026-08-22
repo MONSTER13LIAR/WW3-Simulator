@@ -3,6 +3,7 @@ import { state, messagesFor, openChannel, say, alliesOf } from '../state/store'
 import { leaderRespond, blocReacts } from '../net/respond'
 import { pickSide } from '../state/opening'
 import { offerTreaty, answerOffer, treatyOpen, TREATY_DAY } from '../state/treaty'
+import { answerWorldChoice } from '../state/world'
 import type { ChatMsg } from '../state/types'
 
 export const INBOX = 'INBOX'
@@ -206,9 +207,11 @@ export function bindRail(root: HTMLElement) {
   root.querySelectorAll<HTMLButtonElement>('[data-side]').forEach(el =>
     el.addEventListener('click', () => {
       const m = state.messages.find(x => x.id === el.dataset.mid)
+      const i = Number(el.dataset.side)
+      if (answerWorldChoice(el.dataset.mid!, i)) return
       if (m?.channel === 'BLOC') {
-        if (m.choice && m.choice.picked === undefined) { m.choice.picked = Number(el.dataset.side); answerOffer(Number(el.dataset.side)) }
-      } else pickSide(el.dataset.mid!, Number(el.dataset.side))
+        if (m.choice && m.choice.picked === undefined) { m.choice.picked = i; answerOffer(i) }
+      } else pickSide(el.dataset.mid!, i)
     }))
 
   root.querySelector<HTMLButtonElement>('[data-treaty]')?.addEventListener('click', () => void offerTreaty())

@@ -6,6 +6,7 @@ import { renderActionBar, bindActionBar, actionBarSignature } from '../component
 import { worldWarAlarm } from '../components/fx'
 import { MAX_DAYS, startClock, secondsLeft } from '../state/turn'
 import { runOpening } from '../state/opening'
+import { startWorld } from '../state/world'
 import { renderRail, bindRail, updateRail } from '../components/chatPanel'
 import { ENDINGS } from '../state/mock'
 import { formatPop, formatExact } from '../state/population'
@@ -201,6 +202,7 @@ export function bindGame(root: HTMLElement) {
 
   bindGuide(root)
   startClock()
+  startWorld()
   // a returning player skips the guide; the world still opens on them
   if (state.phase === 'guide' && guideSeen()) void runOpening()
 }
