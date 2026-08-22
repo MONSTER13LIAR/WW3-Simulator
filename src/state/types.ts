@@ -65,7 +65,7 @@ export interface LeaderMemory {
   lastContact: number
 }
 
-export type MsgKind = 'said' | 'system' | 'action' | 'choice'
+export type MsgKind = 'said' | 'system' | 'action' | 'choice' | 'treaty'
 
 /** A decision put to the player inside the chat: two sides, one click. */
 export interface Choice {
@@ -103,7 +103,25 @@ export type Phase = 'guide' | 'opening' | 'play'
 
 export type EndingId =
   | 'annihilation' | 'victory' | 'colonized' | 'debt'
-  | 'coup' | 'exile' | 'peace' | 'forgotten'
+  | 'coup' | 'exile' | 'peace' | 'forgotten' | 'treaty'
+
+export interface TreatyTerms {
+  payer: CountryId[]
+  payee: CountryId[]
+  deadByPayer: number
+  deadByPayee: number
+  billions: number
+  oilMillionBarrels: number
+  grainMillionTonnes: number
+  rebuildYears: number
+}
+
+export interface Treaty {
+  status: 'offered' | 'received' | 'refused' | 'signed'
+  by: 'us' | 'them'
+  day: number
+  terms: TreatyTerms
+}
 
 export interface Ending {
   id: EndingId
@@ -154,6 +172,7 @@ export interface GameState {
   crisis: Crisis | null
   /** the side the player joined (their alliance channel members) */
   bloc: CountryId[]
+  treaty: Treaty | null
   /** true once the player's own country is gone */
   playerDestroyed: boolean
   /** messages the player has sent, all channels — drives the Forgotten ending */

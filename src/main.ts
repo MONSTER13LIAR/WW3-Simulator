@@ -11,6 +11,7 @@ import { renderGame, bindGame, updateGame } from './screens/game'
 import { renderEnding, bindEnding } from './screens/ending'
 import { clearFx } from './components/fx'
 import { stopClock } from './state/turn'
+import { startPersisting, restore } from './state/persist'
 
 // dev only: lets a browser driver read the store without a UI round-trip
 if (import.meta.env.DEV) (window as unknown as { __ww3: unknown }).__ww3 = state
@@ -48,5 +49,7 @@ function render() {
   if (state.screen === 'game') updateGame(app)
 }
 
+restore()
+startPersisting()
 subscribe(render)
 render()

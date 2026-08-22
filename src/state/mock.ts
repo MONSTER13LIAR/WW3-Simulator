@@ -265,6 +265,12 @@ export const ENDINGS: Record<EndingId, Ending> = {
     verdict: 'Every bloc intact. Nobody can believe it either.',
     blurb: 'Twelve unstable heads of state, zero launches. Statistically this should not have happened.',
   },
+  treaty: {
+    id: 'treaty', tone: 'good',
+    title: 'PEACE TREATY',
+    verdict: 'Signed. The guns stop. The bill arrives.',
+    blurb: 'Two alliances, one document, and a generation of payments. Nobody won. Everybody stopped.',
+  },
   forgotten: {
     id: 'forgotten', tone: 'absurd',
     title: 'FORGOTTEN',

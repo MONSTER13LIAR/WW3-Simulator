@@ -71,6 +71,7 @@ export const state: GameState = {
   phase: 'guide',
   crisis: null,
   bloc: [],
+  treaty: null,
   playerDestroyed: false,
   playerMessages: 0,
   resolving: false,
@@ -119,6 +120,7 @@ export function startGame(playerId: CountryId) {
   state.phase = 'guide'
   state.crisis = null
   state.bloc = []
+  state.treaty = null
   state.playerDestroyed = false
   state.playerMessages = 0
   state.resolving = false

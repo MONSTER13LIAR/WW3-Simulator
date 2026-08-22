@@ -114,8 +114,8 @@ export function renderGame(): string {
   railOpen = true
   alarmed = false
   return `
-  <div class="screen game is-guided focus-${GUIDE[guideStep = 0].at}">
-    ${renderGuide()}
+  <div class="screen game${state.phase === 'guide' ? ` is-guided focus-${GUIDE[guideStep = 0].at}` : ''}">
+    ${state.phase === 'guide' ? renderGuide() : ''}
     <header class="topbar">
       <span class="brand">WW3 <span>Simulator</span></span>
       <span class="chips">${chips()}</span>

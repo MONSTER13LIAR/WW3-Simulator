@@ -2,6 +2,7 @@ import { LEADERS, LEADER_BY_ID } from '../state/mock'
 import { state, messagesFor, openChannel, say, alliesOf } from '../state/store'
 import { leaderRespond, blocReacts } from '../net/respond'
 import { pickSide } from '../state/opening'
+import { offerTreaty, answerOffer, treatyOpen, TREATY_DAY } from '../state/treaty'
 import type { ChatMsg } from '../state/types'
 
 export const INBOX = 'INBOX'
@@ -18,9 +19,9 @@ const esc = (s: string) => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;'
 function bubble(m: ChatMsg): string {
   const mine = m.from === state.playerId
   const l = m.from !== 'SYSTEM' ? LEADER_BY_ID.get(m.from) : null
-  const cls = m.kind === 'system' ? 'msg--system' : m.kind === 'action' ? 'msg--action' : m.kind === 'choice' ? 'msg--choice' : mine ? 'msg--me' : ''
+  const cls = m.kind === 'system' ? 'msg--system' : m.kind === 'action' ? 'msg--action' : m.kind === 'choice' ? 'msg--choice' : m.kind === 'treaty' ? 'msg--treaty' : mine ? 'msg--me' : ''
   const to = m.to ? ` <i>→ ${LEADER_BY_ID.get(m.to)?.short ?? m.to}</i>` : ''
-  const who = m.kind === 'system' || m.kind === 'choice' ? '' : `<span class="who">${l ? `${l.flag} ${l.short}` : ''}${to}</span>`
+  const who = m.kind === 'system' || m.kind === 'choice' || m.kind === 'treaty' ? '' : `<span class="who">${l ? `${l.flag} ${l.short}` : ''}${to}</span>`
   const fresh = mounted.has(m.id) ? '' : ' is-new'
   mounted.add(m.id)
   if (m.kind === 'choice' && m.choice) {
@@ -31,7 +32,24 @@ function bubble(m: ChatMsg): string {
       </button>`).join('')
     return `<div class="msg ${cls}${fresh}" data-mid="${m.id}"><div class="bubble">${esc(m.text)}</div><div class="sides">${opts}</div></div>`
   }
+  if (m.kind === 'treaty') {
+    return `<div class="msg ${cls}${fresh}" data-mid="${m.id}"><pre class="bubble treaty">${esc(m.text)}</pre></div>`
+  }
   return `<div class="msg ${cls}${fresh}" data-mid="${m.id}">${who}<div class="bubble">${esc(m.text)}</div></div>`
+}
+
+/** The way out. Locked until day 10; then one click offers the other side terms. */
+function treatyButton(): string {
+  const t = state.treaty
+  if (t?.status === 'signed') return ''
+  if (t?.status === 'received') return `<div class="treaty-row"><span class="eyebrow">They have offered. Answer above.</span></div>`
+  const open = treatyOpen()
+  const pending = t?.status === 'offered'
+  const label = pending ? 'Offer sent — waiting' : open ? 'Offer a peace treaty' : `Peace treaty unlocks day ${TREATY_DAY}`
+  return `<div class="treaty-row">
+    <button class="treaty-btn" data-treaty${open && !pending ? '' : ' disabled'}>🕊 ${label}</button>
+    ${t?.status === 'refused' ? `<small>Refused on day ${t.day}. Offer again when the damage is lower.</small>` : ''}
+  </div>`
 }
 
 function lastLine(channel: string): string {
@@ -125,6 +143,7 @@ export function renderRail(): string {
     </div>
     <div class="log" id="log">${messagesFor(ch).map(bubble).join('')}${typingBubble(ch)}</div>
     ${canSend ? `<div class="composer">
+      ${ch === 'BLOC' ? treatyButton() : ''}
       <div class="quick">${quick}</div>
       <div class="row">
         <input id="say" placeholder="${l ? `Message ${l.short}…` : ch === 'BLOC' ? 'Message your allies…' : 'Address the world…'}" autocomplete="off" />
@@ -185,7 +204,14 @@ export function bindRail(root: HTMLElement) {
     el.addEventListener('click', () => send(el.dataset.quick!)))
 
   root.querySelectorAll<HTMLButtonElement>('[data-side]').forEach(el =>
-    el.addEventListener('click', () => pickSide(el.dataset.mid!, Number(el.dataset.side))))
+    el.addEventListener('click', () => {
+      const m = state.messages.find(x => x.id === el.dataset.mid)
+      if (m?.channel === 'BLOC') {
+        if (m.choice && m.choice.picked === undefined) { m.choice.picked = Number(el.dataset.side); answerOffer(Number(el.dataset.side)) }
+      } else pickSide(el.dataset.mid!, Number(el.dataset.side))
+    }))
+
+  root.querySelector<HTMLButtonElement>('[data-treaty]')?.addEventListener('click', () => void offerTreaty())
 
   const input = root.querySelector<HTMLInputElement>('#say')
   // Clear before send(): say() re-renders the rail synchronously and would

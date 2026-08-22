@@ -8,6 +8,7 @@ import {
 import { POPULATION, dailyGrowth, formatExact } from './population'
 import { leaderRespond, someoneReacts } from '../net/respond'
 import { strike as strikeFx } from '../components/fx'
+import { theyWantPeace, receiveOffer } from './treaty'
 
 export const MAX_DAYS = 14
 
@@ -46,6 +47,7 @@ export async function endDay(): Promise<void> {
   resolveEnding()
   setResolving(false)
   dayEndsAt = Date.now() + DAY_MS
+  if (!state.ending && theyWantPeace() && chance(0.5)) receiveOffer()
 }
 
 /* ---------- the slow pressures ---------- */
