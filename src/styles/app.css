@@ -647,29 +647,29 @@
 .guide-next {
   pointer-events: auto; justify-self: start;
   display: inline-flex; align-items: center; gap: var(--s2);
-  padding: 8px 12px;
+  padding: 11px 16px;
   border: 1px solid var(--accent); border-radius: var(--r1);
   background: var(--accent); color: #000;
-  font-size: 10px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700;
+  font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700;
 }
 .guide-next small { font-weight: 500; opacity: .6; margin-right: var(--s1); letter-spacing: .05em; }
 .guide-next .btn-arrow { display: inline-flex; width: 16px; }
 .callout {
   position: absolute; display: flex; align-items: flex-start; gap: var(--s3);
-  max-width: 300px;
-  padding: var(--s3) var(--s4);
-  background: var(--ink-950); border: 1px solid var(--accent);
+  max-width: 440px;
+  padding: var(--s5) var(--s5);
+  background: var(--ink-950); border: 1.5px solid var(--accent);
   border-radius: var(--r2);
   box-shadow: 0 0 0 4px var(--accent-glow), 0 18px 40px rgba(0,0,0,.6);
   animation: callout-in .5s var(--ease) both;
 }
-.callout p { font-size: 12.5px; line-height: 1.55; color: var(--text); margin: 0; }
-.callout-arrow { display: inline-flex; width: 22px; flex: none; color: var(--accent); margin-top: 3px; }
+.callout p { font-size: 17px; line-height: 1.6; color: var(--text); margin: 0; }
+.callout-arrow { display: inline-flex; width: 30px; flex: none; color: var(--accent); margin-top: 6px; }
 .callout--up   .callout-arrow { transform: rotate(-90deg); }
 .callout--down .callout-arrow { transform: rotate(90deg); }
 .callout--left .callout-arrow { transform: none; }
 
-.callout--hud    { left: 24px; top: 132px; }
+.callout--hud    { left: 24px; top: 140px; }
 .callout--map    { left: 58%; top: 84%; transform: translate(calc(-50% - var(--rail-w) / 2), -50%); }
 .callout--orders { left: 50%; bottom: 104px; transform: translateX(calc(-50% - var(--rail-w) / 2)); }
 .callout--orders { animation-name: callout-in-map; }
