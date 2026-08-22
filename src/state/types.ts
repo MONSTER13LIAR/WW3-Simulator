@@ -3,6 +3,20 @@ export type CountryId = string
 
 export type Relation = 'self' | 'ally' | 'neutral' | 'war' | 'destroyed'
 
+/** Quarter of a country a strike is aimed at. The map has no internal borders,
+    so a region is a quadrant around the centroid. */
+export type Region = 'north' | 'south' | 'east' | 'west'
+export const REGIONS: Region[] = ['north', 'west', 'east', 'south']
+
+/** One warhead landing somewhere — the war's event log. */
+export interface Strike {
+  day: number
+  from: CountryId
+  to: CountryId
+  region: Region
+  dead: number
+}
+
 /** Chat threads: the room, a DM with one leader, or intercepted traffic between two AIs. */
 export type Channel = CountryId | 'GLOBAL' | 'INTERCEPT'
 
@@ -102,6 +116,19 @@ export interface GameState {
   population: Record<CountryId, number>
   /** everyone killed so far, worldwide */
   deaths: number
+  /** country id -> warheads still in the silo (every playable state has some) */
+  bombs: Record<CountryId, number>
+  /** territory id -> the country that now holds it; absent = self-governed */
+  owner: Record<CountryId, CountryId>
+  /** country id -> the countries it is formally allied with (symmetric) */
+  alliances: Record<CountryId, CountryId[]>
+  /** every warhead fired, in order */
+  strikes: Strike[]
+  /** set once, the day an alliance-backed attack is answered in kind */
+  worldWar: boolean
+  worldWarDay: number
+  /** region the next launch is aimed at */
+  targetRegion: Region
   /** true once the player's own country is gone */
   playerDestroyed: boolean
   /** messages the player has sent, all channels — drives the Forgotten ending */

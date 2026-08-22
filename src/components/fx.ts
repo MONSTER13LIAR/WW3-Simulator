@@ -134,7 +134,35 @@ function pulseVignette() {
   v.classList.add('on')
 }
 
+/**
+ * The one-time alarm: the world just went to total war. A red stamp with the
+ * exclamation, a longer shake, the vignette left burning. Lives on <body> like
+ * the overlay so no re-render can cut it short.
+ */
+export function worldWarAlarm() {
+  let v = document.getElementById('ww3-alarm')
+  if (v) return
+  v = document.createElement('div')
+  v.id = 'ww3-alarm'
+  v.innerHTML = `
+    <div class="ww3-mark"><span>!</span></div>
+    <div class="ww3-text"><b>World War III</b><small>has started</small></div>`
+  document.body.appendChild(v)
+  const app = document.getElementById('app')
+  if (app && !reduced()) {
+    app.classList.remove('shake', 'shake--long')
+    void app.offsetWidth
+    app.classList.add('shake--long')
+    setTimeout(() => app.classList.remove('shake--long'), 1800)
+  }
+  pulseVignette()
+  setTimeout(() => pulseVignette(), 700)
+  setTimeout(() => v?.classList.add('out'), 4200)
+  setTimeout(() => v?.remove(), 5000)
+}
+
 /** called when leaving the game screen */
 export function clearFx() {
   document.getElementById('fx-overlay')?.remove()
+  document.getElementById('ww3-alarm')?.remove()
 }

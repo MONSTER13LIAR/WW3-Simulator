@@ -1,4 +1,4 @@
-import type { CountryId } from './types'
+import type { CountryId, Region } from './types'
 
 /**
  * Real populations, fetched once from the World Bank's SP.POP.TOTL indicator
@@ -31,13 +31,48 @@ export const WORLD_POPULATION = Object.values(POPULATION).reduce((a, b) => a + b
  * there. The band is wide enough that two identical strikes read differently,
  * which matters because the toll is the only number the player really feels.
  */
-const KILL_MIN = 0.34
-const KILL_MAX = 0.61
+const KILL_MIN = 0.20
+const KILL_MAX = 0.30
 
-/** People killed by one warhead landing on `living` survivors. */
-export function strikeToll(living: number): number {
-  const share = KILL_MIN + Math.random() * (KILL_MAX - KILL_MIN)
+/**
+ * How much of a country lives in each quarter of it. Nobody's people are spread
+ * evenly; a strike on the crowded quarter takes the top of the band, a strike
+ * on the empty one the bottom. Values are a weight, not a share.
+ */
+export const REGION_WEIGHT: Record<CountryId, Record<Region, number>> = {
+  'India':                    { north: 1.2, south: 1.0, east: 1.1, west: 0.8 },
+  'China':                    { north: 0.9, south: 1.0, east: 1.3, west: 0.4 },
+  'United States of America': { north: 0.9, south: 0.9, east: 1.3, west: 0.8 },
+  'Brazil':                   { north: 0.5, south: 1.1, east: 1.3, west: 0.5 },
+  'Russia':                   { north: 0.5, south: 0.9, east: 0.5, west: 1.4 },
+  'Japan':                    { north: 0.6, south: 1.0, east: 1.3, west: 0.9 },
+  'Germany':                  { north: 1.0, south: 1.1, east: 0.8, west: 1.3 },
+  'United Kingdom':           { north: 0.7, south: 1.4, east: 1.0, west: 0.9 },
+  'France':                   { north: 1.4, south: 1.0, east: 0.9, west: 0.8 },
+  'Canada':                   { north: 0.2, south: 1.4, east: 1.1, west: 0.9 },
+  'Australia':                { north: 0.4, south: 1.2, east: 1.4, west: 0.7 },
+  'Switzerland':              { north: 1.2, south: 0.7, east: 0.9, west: 1.0 },
+}
+
+/**
+ * People killed by one warhead landing on `region` of a country with `living`
+ * survivors: 20–30 % of them, the exact share set by how crowded that quarter is.
+ */
+export function strikeToll(living: number, id: CountryId, region: Region): number {
+  const w = REGION_WEIGHT[id]?.[region] ?? 1
+  // weight 0.2..1.4 -> 0..1 across the band
+  const t = Math.max(0, Math.min(1, (w - 0.2) / 1.2))
+  const share = KILL_MIN + t * (KILL_MAX - KILL_MIN)
   return Math.min(living, Math.round(living * share))
+}
+
+/**
+ * Daily growth. A strong economy adds people, a wrecked one loses them — at a
+ * tiny per-day rate so a fortnight moves the number visibly, not absurdly.
+ */
+export function dailyGrowth(living: number, economy: number): number {
+  const rate = (economy - 40) / 100 * 0.006   // economy 100 → +0.36 %/day, 0 → -0.24 %
+  return Math.round(living * rate)
 }
 
 /** 1_463_865_525 -> "1.46B". Short enough for a chip, precise enough to sting. */

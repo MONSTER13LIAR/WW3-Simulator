@@ -502,6 +502,55 @@
 .chip--defcon b { color: var(--accent); }
 .chip--defcon.hot b { color: var(--war); }
 .chip--dead.on b { color: var(--war); }
+.chip--ww3 { color: var(--war); }
+.chip--ww3 b { color: var(--war); font-weight: 700; }
+.chip--resolving { color: var(--accent); }
+
+/* ---- target selector + arsenal ---- */
+.target {
+  display: inline-flex; align-items: center; gap: var(--s2);
+  margin-left: auto; padding: 0 var(--s3);
+  border-left: 1px solid var(--line);
+}
+.target b { font-size: 12px; color: var(--text); font-weight: 500; }
+.regions { display: inline-flex; gap: 3px; }
+.region {
+  width: 24px; height: 24px;
+  border: 1px solid var(--line); border-radius: 4px;
+  font-size: 10px; letter-spacing: 0; color: var(--text-dim);
+}
+.region:hover { color: var(--text); border-color: var(--line-strong); }
+.region.on { background: var(--accent); color: #000; border-color: var(--accent); }
+.act--nuke { margin-left: 0; }
+.act--nuke b { font-weight: 700; margin-left: 4px; }
+.act:disabled { opacity: .4; cursor: not-allowed; }
+.act:disabled:hover { background: none; color: inherit; border-color: var(--line); }
+
+/* ---- WW3 alarm ---- */
+#ww3-alarm {
+  position: fixed; inset: 0; z-index: 80; pointer-events: none;
+  display: grid; place-items: center; gap: var(--s3);
+  grid-auto-flow: row;
+  align-content: center;
+  animation: ww3-in .5s var(--ease) both;
+}
+#ww3-alarm.out { animation: ww3-out .8s var(--ease) both; }
+.ww3-mark {
+  width: 124px; height: 124px;
+  display: grid; place-items: center;
+  border: 6px solid var(--war); border-radius: 50%;
+  color: var(--war); font-size: 92px; font-weight: 900; line-height: 1;
+  background: rgba(0,0,0,.55);
+  box-shadow: 0 0 0 10px rgba(217,58,43,.18), 0 0 80px rgba(217,58,43,.5);
+  animation: ww3-pulse .9s ease-in-out infinite;
+}
+.ww3-text { text-align: center; color: #fff; text-shadow: 0 2px 18px rgba(0,0,0,.8); }
+.ww3-text b { display: block; font-size: 44px; letter-spacing: .18em; text-transform: uppercase; color: var(--war); }
+.ww3-text small { display: block; font-size: 13px; letter-spacing: .32em; text-transform: uppercase; opacity: .85; }
+@keyframes ww3-in   { from { opacity: 0; transform: scale(1.4) } }
+@keyframes ww3-out  { to   { opacity: 0; transform: scale(.9) } }
+@keyframes ww3-pulse { 50% { transform: scale(1.08); box-shadow: 0 0 0 16px rgba(217,58,43,.25), 0 0 120px rgba(217,58,43,.7); } }
+.shake--long { animation: shake .6s cubic-bezier(.36,.07,.19,.97) 3 both; }
 
 .game-body {
   --rail-w: 384px;

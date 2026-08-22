@@ -1,8 +1,10 @@
-import { state, reset, endGame } from '../state/store'
+import { state, reset, endGame, bombsOf } from '../state/store'
 import { INBOX } from '../components/chatPanel'
 import { renderWorldMap, bindMapClicks, refreshMap } from '../components/worldMap'
 import { renderHud, resetHudMemory, hudSignature } from '../components/statsHud'
-import { renderActionBar, bindActionBar } from '../components/actionBar'
+import { renderActionBar, bindActionBar, actionBarSignature } from '../components/actionBar'
+import { worldWarAlarm } from '../components/fx'
+import { MAX_DAYS } from '../state/turn'
 import { renderRail, bindRail, updateRail } from '../components/chatPanel'
 import { ENDINGS } from '../state/mock'
 import { formatPop, formatExact } from '../state/population'
@@ -21,6 +23,9 @@ let railOpen = true
  * true the moment the rail is hidden, so those have to be counted from here.
  */
 let seenAtCollapse = 0
+
+/** Whether this run's WW3 alarm has already fired; reset on mount. */
+let alarmed = false
 
 /** Unread messages across every channel the player is not currently reading. */
 function unreadTotal(): number {
@@ -49,10 +54,13 @@ function railToggle(): string {
 /** The only part of the topbar that moves; swapped on its own during updates. */
 function chips(): string {
   const hot = state.defcon <= 2 ? ' hot' : ''
+  const bombs = state.playerId ? bombsOf(state.playerId) : 0
   return `
-    <span class="chip">Day <b>${state.day}</b></span>
+    <span class="chip">Day <b>${Math.min(state.day, MAX_DAYS)}</b> / ${MAX_DAYS}</span>
+    ${state.worldWar ? '<span class="chip chip--ww3">WW3 <b>day ' + (state.day - state.worldWarDay + 1) + '</b></span>' : ''}
     <span class="chip chip--defcon${hot}">Defcon <b>${state.defcon}</b></span>
-    <span class="chip">Warheads used <b>${state.nukesLaunched}</b></span>
+    <span class="chip" title="Warheads in the silo">Warheads <b>${bombs}</b></span>
+    ${state.resolving ? '<span class="chip chip--resolving">Resolving<b>…</b></span>' : ''}
     <span class="chip chip--dead${state.deaths ? ' on' : ''}" title="${formatExact(state.deaths)} dead">
       Dead <b>${formatPop(state.deaths)}</b>
     </span>`
@@ -61,6 +69,7 @@ function chips(): string {
 export function renderGame(): string {
   resetHudMemory()
   railOpen = true
+  alarmed = false
   return `
   <div class="screen game">
     <header class="topbar">
@@ -94,14 +103,22 @@ export function renderGame(): string {
  * Only the regions that actually depend on state are rewritten here.
  */
 export function updateGame(root: HTMLElement) {
-  const bar = root.querySelector<HTMLElement>('.chips')
-  if (bar) bar.innerHTML = chips()
+  const chipBar = root.querySelector<HTMLElement>('.chips')
+  if (chipBar) chipBar.innerHTML = chips()
 
   const hud = root.querySelector<HTMLElement>('.hud')
   if (hud && hudSignature() !== hud.dataset.sig) hud.outerHTML = renderHud()
 
   const shell = root.querySelector<HTMLElement>('#map-shell')
   if (shell) refreshMap(shell)
+
+  const bar = root.querySelector<HTMLElement>('.actionbar')
+  if (bar && bar.dataset.sig !== actionBarSignature()) {
+    bar.outerHTML = renderActionBar()
+    bindActionBar(root.querySelector<HTMLElement>('.actionbar')!)
+  }
+
+  if (state.worldWar && !alarmed) { alarmed = true; worldWarAlarm() }
 
   const toggle = root.querySelector<HTMLElement>('[data-rail-toggle]')
   if (toggle) toggle.innerHTML = railToggle()
