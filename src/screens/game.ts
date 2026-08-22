@@ -40,6 +40,12 @@ const GUIDE = [
 
 let guideStep = 0
 
+/** The guide plays once per browser. After that a new run goes straight to the room. */
+const GUIDE_KEY = 'ww3.guide.seen'
+const guideSeen = () => { try { return localStorage.getItem(GUIDE_KEY) === '1' } catch { return false } }
+const markGuideSeen = () => { try { localStorage.setItem(GUIDE_KEY, '1') } catch { /* fine */ } }
+const showGuide = () => state.phase === 'guide' && !guideSeen()
+
 function renderGuide(): string {
   const g = GUIDE[guideStep]
   const last = guideStep === GUIDE.length - 1
@@ -114,8 +120,8 @@ export function renderGame(): string {
   railOpen = true
   alarmed = false
   return `
-  <div class="screen game${state.phase === 'guide' ? ` is-guided focus-${GUIDE[guideStep = 0].at}` : ''}">
-    ${state.phase === 'guide' ? renderGuide() : ''}
+  <div class="screen game${showGuide() ? ` is-guided focus-${GUIDE[guideStep = 0].at}` : ''}">
+    ${showGuide() ? renderGuide() : ''}
     <header class="topbar">
       <span class="brand">WW3 <span>Simulator</span></span>
       <span class="chips">${chips()}</span>
@@ -195,6 +201,8 @@ export function bindGame(root: HTMLElement) {
 
   bindGuide(root)
   startClock()
+  // a returning player skips the guide; the world still opens on them
+  if (state.phase === 'guide' && guideSeen()) void runOpening()
 }
 
 function bindGuide(root: HTMLElement) {
@@ -204,6 +212,7 @@ function bindGuide(root: HTMLElement) {
       for (const g of GUIDE) game?.classList.remove(`focus-${g.at}`)
       game?.classList.remove('is-guided')
       root.querySelector('[data-guide]')?.remove()
+      markGuideSeen()
       void runOpening()
       return
     }
