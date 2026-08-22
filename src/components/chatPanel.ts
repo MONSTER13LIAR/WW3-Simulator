@@ -154,7 +154,14 @@ export function bindRail(root: HTMLElement) {
     el.addEventListener('click', () => send(el.dataset.quick!)))
 
   const input = root.querySelector<HTMLInputElement>('#say')
-  const fire = () => { if (input && input.value.trim()) { send(input.value.trim()); input.value = '' } }
+  // Clear before send(): say() re-renders the rail synchronously and would
+  // otherwise carry the old draft into the new input.
+  const fire = () => {
+    const text = input?.value.trim()
+    if (!input || !text) return
+    input.value = ''
+    send(text)
+  }
   root.querySelector('#send')?.addEventListener('click', fire)
   input?.addEventListener('keydown', e => { if (e.key === 'Enter') fire() })
 
