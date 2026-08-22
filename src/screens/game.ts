@@ -9,6 +9,7 @@ import { renderRail, bindRail, updateRail } from '../components/chatPanel'
 import { ENDINGS } from '../state/mock'
 import { formatPop, formatExact } from '../state/population'
 import type { EndingId } from '../state/types'
+import { arrowRight } from '../components/arrow'
 
 /**
  * Whether the chat rail is on screen. Pure layout state: it lives here rather
@@ -23,6 +24,30 @@ let railOpen = true
  * true the moment the rail is hidden, so those have to be counted from here.
  */
 let seenAtCollapse = 0
+
+/**
+ * The guide: four short callouts over a blurred stage the first time the game
+ * screen mounts in a run. Pure presentation — dismissing it changes nothing in
+ * the store, so it lives here, like the rail toggle.
+ */
+const GUIDE = [
+  { at: 'hud',    side: 'down',  text: 'Your country. Population and the four stats every order spends or earns.' },
+  { at: 'map',    side: 'up',    text: 'The world. Every state has its own colour; yours is blue. Click one to talk to it.' },
+  { at: 'orders', side: 'up',    text: 'Orders. Pick a target and a quarter, then act. End the day to let the world move.' },
+  { at: 'chat',   side: 'left',  text: 'The room. Every other state is here, talking to you and to each other.' },
+] as const
+
+function renderGuide(): string {
+  return `
+  <div class="guide" data-guide>
+    ${GUIDE.map(g => `
+      <div class="callout callout--${g.at} callout--${g.side}">
+        <span class="callout-arrow">${arrowRight()}</span>
+        <p>${g.text}</p>
+      </div>`).join('')}
+    <button class="btn btn--primary guide-go" data-guide-go>Begin <span class="btn-arrow">${arrowRight()}</span></button>
+  </div>`
+}
 
 /** Whether this run's WW3 alarm has already fired; reset on mount. */
 let alarmed = false
@@ -71,7 +96,8 @@ export function renderGame(): string {
   railOpen = true
   alarmed = false
   return `
-  <div class="screen game">
+  <div class="screen game is-guided">
+    ${renderGuide()}
     <header class="topbar">
       <span class="brand">WW3 <span>Simulator</span></span>
       <span class="chips">${chips()}</span>
@@ -143,6 +169,11 @@ export function bindGame(root: HTMLElement) {
   })
   root.querySelectorAll<HTMLElement>('[data-end]').forEach(el =>
     el.addEventListener('click', () => endGame(el.dataset.end as EndingId)))
+
+  root.querySelector<HTMLElement>('[data-guide-go]')?.addEventListener('click', () => {
+    root.querySelector('.game')?.classList.remove('is-guided')
+    root.querySelector('[data-guide]')?.remove()
+  })
 }
 
 /**

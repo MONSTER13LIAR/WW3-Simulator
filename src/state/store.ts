@@ -1,7 +1,7 @@
 import type {
   GameState, CountryId, Relation, ChatMsg, EndingId, Screen, Channel, LeaderMemory, Region,
 } from './types'
-import { LEADERS, LEADER_BY_ID, SEED_GLOBAL, SEED_DMS, msg } from './mock'
+import { LEADERS, LEADER_BY_ID, msg } from './mock'
 import { POPULATION, strikeToll } from './population'
 
 type Listener = (s: GameState) => void
@@ -121,16 +121,9 @@ export function startGame(playerId: CountryId) {
   state.openChannel = 'GLOBAL'
   state.unread = {}
 
-  state.messages = SEED_GLOBAL
-    .filter(([from]) => from !== playerId)
-    .map(([from, text]) =>
-      msg(from as ChatMsg['from'], 'GLOBAL', text, 1, from === 'SYSTEM' ? 'system' : 'said'))
-
-  for (const [id, lines] of Object.entries(SEED_DMS)) {
-    if (id === playerId) continue
-    for (const line of lines) state.messages.push(msg(id, id, line, 1))
-    state.unread[id] = lines.length
-  }
+  // The room opens silent. The opening argument is seeded once the guide is
+  // dismissed, so the first thing the player reads is the world, not a backlog.
+  state.messages = []
 
   state.screen = 'game'
   emit()

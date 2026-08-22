@@ -557,14 +557,62 @@
 @keyframes ww3-pulse { 50% { transform: scale(1.08); box-shadow: 0 0 0 16px rgba(217,58,43,.25), 0 0 120px rgba(217,58,43,.7); } }
 .shake--long { animation: shake .6s cubic-bezier(.36,.07,.19,.97) 3 both; }
 
+.game { --rail-w: 384px; }
 .game-body {
-  --rail-w: 384px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--rail-w);
   min-height: 0;
   transition: grid-template-columns .32s var(--ease);
 }
 .game-body.rail-closed { grid-template-columns: minmax(0, 1fr) 0px; }
+
+/* ---- guide ----
+   Everything but the chat rail blurs; the callouts sit on top and point at the
+   thing they describe. Positions follow the grid: rail is var(--rail-w) wide. */
+.game { position: relative; }
+.game.is-guided .topbar,
+.game.is-guided .stage,
+.game.is-guided .rail-slot { transition: filter .4s var(--ease); }
+.game.is-guided .topbar,
+.game.is-guided .stage { filter: blur(7px) saturate(.6); pointer-events: none; }
+.game.is-guided .rail-slot { filter: none; pointer-events: none; }
+
+.guide { position: absolute; inset: 0; z-index: 60; pointer-events: none; }
+.guide::before {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(5,6,8,.38);
+}
+.callout {
+  position: absolute; display: flex; align-items: flex-start; gap: var(--s3);
+  max-width: 300px;
+  padding: var(--s3) var(--s4);
+  background: var(--ink-950); border: 1px solid var(--accent);
+  border-radius: var(--r2);
+  box-shadow: 0 0 0 4px var(--accent-glow), 0 18px 40px rgba(0,0,0,.6);
+  animation: callout-in .5s var(--ease) both;
+}
+.callout p { font-size: 12.5px; line-height: 1.55; color: var(--text); margin: 0; }
+.callout-arrow { display: inline-flex; width: 22px; flex: none; color: var(--accent); margin-top: 3px; }
+.callout--up   .callout-arrow { transform: rotate(-90deg); }
+.callout--down .callout-arrow { transform: rotate(90deg); }
+.callout--left .callout-arrow { transform: none; }
+
+.callout--hud    { left: 24px; top: 132px; animation-delay: .1s; }
+.callout--map    { left: 50%; top: 50%; transform: translate(calc(-50% - var(--rail-w) / 2), -50%); animation-delay: .25s; }
+.callout--orders { left: 50%; bottom: 104px; transform: translateX(calc(-50% - var(--rail-w) / 2)); animation-delay: .4s; }
+.callout--orders { animation-name: callout-in-map; }
+.callout--chat   { right: calc(var(--rail-w) + 20px); top: 44%; animation-delay: .55s; }
+.callout--chat .callout-arrow { order: 2; margin-left: auto; }
+
+.guide-go {
+  position: absolute; pointer-events: auto;
+  left: 50%; bottom: 34%;
+  transform: translateX(calc(-50% - var(--rail-w) / 2));
+  animation: callout-in .5s var(--ease) .7s both;
+}
+@keyframes callout-in { from { opacity: 0; transform: translateY(8px); } }
+.callout--map { animation-name: callout-in-map; }
+@keyframes callout-in-map { from { opacity: 0; } }
 
 /* The slot clips; the rail inside keeps its full width and hugs the viewport
    edge, so collapsing reads as the panel sliding off screen rather than its
@@ -914,7 +962,7 @@
 .devbar button:hover { color: var(--accent); border-color: var(--accent-dim); }
 
 @media (max-width: 1080px) {
-  .game-body { --rail-w: 320px; }
+  .game { --rail-w: 320px; }
   .hud-stats { gap: var(--s4); }
   .stat { min-width: 92px; }
 }
