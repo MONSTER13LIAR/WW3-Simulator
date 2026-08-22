@@ -11,8 +11,9 @@ import { strike as strikeFx } from '../components/fx'
 
 export const MAX_DAYS = 14
 
-/** A state falls when this share of its people are gone. */
-const FALLS_AT = 0.45
+/** A state falls when this share of its people are gone; the player gets a little more rope. */
+const FALLS_AT = 0.55
+const PLAYER_FALLS_AT = 0.65
 
 const pick = <T,>(arr: T[]): T | undefined => arr[Math.floor(Math.random() * arr.length)]
 const chance = (p: number) => Math.random() < p
@@ -44,6 +45,7 @@ export async function endDay(): Promise<void> {
 
   resolveEnding()
   setResolving(false)
+  dayEndsAt = Date.now() + DAY_MS
 }
 
 /* ---------- the slow pressures ---------- */
@@ -134,7 +136,8 @@ async function intercept(from: CountryId, to: CountryId) {
 
 /** A state's people have had enough; it stops standing as a government. */
 function maybeFalls(id: CountryId, by: CountryId) {
-  if (livingIn(id) > POPULATION[id] * (1 - FALLS_AT)) return
+  const at = id === state.playerId ? PLAYER_FALLS_AT : FALLS_AT
+  if (livingIn(id) > POPULATION[id] * (1 - at)) return
   if (state.owner[id]) return
   conquer(by, id)
   const byShort = LEADERS.find(l => l.id === by)?.short ?? by
@@ -143,7 +146,7 @@ function maybeFalls(id: CountryId, by: CountryId) {
 }
 
 /** A warhead fired by an AI state: fx, toll, log, and the fall check, in sequence. */
-async function aiLaunch(from: CountryId, to: CountryId): Promise<void> {
+export async function aiLaunch(from: CountryId, to: CountryId): Promise<void> {
   if (!spendBomb(from)) return
   const r = region()
   const fromShort = LEADERS.find(l => l.id === from)?.short ?? from
@@ -160,6 +163,57 @@ async function aiLaunch(from: CountryId, to: CountryId): Promise<void> {
   }
   setDefcon(1)
   maybeFalls(to, from)
+}
+
+/**
+ * The answer to a strike by the player on `target`: the target fires back if
+ * it can, and one of its allies hits one of yours. Not a dice roll — a state
+ * that has just been nuked and still has a silo does not sit on it.
+ */
+export async function retaliate(target: CountryId): Promise<void> {
+  const me = state.playerId!
+  const side = [target, ...alliesOf(target)].filter(id => isAlive(id) && holderOf(id) === id && id !== me)
+  const shooter = side.find(id => bombsOf(id) > 0)
+  if (!shooter) return
+  await wait(2200)
+  if (state.ending) return
+  say(shooter, 'GLOBAL', `${LEADERS.find(l => l.id === me)?.short ?? me} struck ${LEADERS.find(l => l.id === target)?.short ?? target}. We are answering.`, 'action')
+  await aiLaunch(shooter, me)
+
+  // their ally against one of yours
+  const second = side.find(id => id !== shooter && bombsOf(id) > 0)
+  const myAlly = pick(alliesOf(me).filter(id => isAlive(id) && holderOf(id) === id))
+  if (second && myAlly && chance(0.7)) {
+    await wait(1400)
+    if (state.ending) return
+    await aiLaunch(second, myAlly)
+  }
+  resolveEnding()
+}
+
+/* ---------- the clock: one real minute is one day ---------- */
+
+export const DAY_MS = 60_000
+let timer: ReturnType<typeof setInterval> | null = null
+let dayEndsAt = 0
+
+/** Seconds until the day rolls over, for the HUD. */
+export const secondsLeft = () => Math.max(0, Math.ceil((dayEndsAt - Date.now()) / 1000))
+
+export function startClock() {
+  stopClock()
+  dayEndsAt = Date.now() + DAY_MS
+  timer = setInterval(() => {
+    if (state.screen !== 'game' || state.ending) { stopClock(); return }
+    if (state.phase !== 'play' || state.resolving) { dayEndsAt = Date.now() + DAY_MS; return }
+    if (Date.now() >= dayEndsAt) void endDay()
+    document.getElementById('clock')?.replaceChildren(String(secondsLeft()).padStart(2, '0'))
+  }, 250)
+}
+
+export function stopClock() {
+  if (timer) clearInterval(timer)
+  timer = null
 }
 
 /** Someone who truly hates you, with something in the silo, when the world is tense enough. */

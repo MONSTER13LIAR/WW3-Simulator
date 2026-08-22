@@ -10,6 +10,7 @@ import { renderSelect, bindSelect } from './screens/countrySelect'
 import { renderGame, bindGame, updateGame } from './screens/game'
 import { renderEnding, bindEnding } from './screens/ending'
 import { clearFx } from './components/fx'
+import { stopClock } from './state/turn'
 
 // dev only: lets a browser driver read the store without a UI round-trip
 if (import.meta.env.DEV) (window as unknown as { __ww3: unknown }).__ww3 = state
@@ -37,7 +38,7 @@ function mount() {
  * the game screen has anything that changes while it is open.
  */
 function render() {
-  if (state.screen !== 'game') clearFx()
+  if (state.screen !== 'game') { clearFx(); stopClock() }
 
   if (state.screen !== mountedScreen) {
     mount()

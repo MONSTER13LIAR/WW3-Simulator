@@ -4,7 +4,7 @@ import { renderWorldMap, bindMapClicks, refreshMap } from '../components/worldMa
 import { renderHud, resetHudMemory, hudSignature } from '../components/statsHud'
 import { renderActionBar, bindActionBar, actionBarSignature } from '../components/actionBar'
 import { worldWarAlarm } from '../components/fx'
-import { MAX_DAYS } from '../state/turn'
+import { MAX_DAYS, startClock, secondsLeft } from '../state/turn'
 import { runOpening } from '../state/opening'
 import { renderRail, bindRail, updateRail } from '../components/chatPanel'
 import { ENDINGS } from '../state/mock'
@@ -99,6 +99,7 @@ function chips(): string {
   const bombs = state.playerId ? bombsOf(state.playerId) : 0
   return `
     <span class="chip">Day <b>${Math.min(state.day, MAX_DAYS)}</b> / ${MAX_DAYS}</span>
+    <span class="chip chip--clock" title="One minute is one day. End day skips ahead.">Next day <b id="clock">${state.phase === 'play' && !state.resolving ? String(secondsLeft()).padStart(2, '0') : '—'}</b>s</span>
     ${state.worldWar ? '<span class="chip chip--ww3">WW3 <b>day ' + (state.day - state.worldWarDay + 1) + '</b></span>' : ''}
     <span class="chip chip--defcon${hot}">Defcon <b>${state.defcon}</b></span>
     <span class="chip" title="Warheads in the silo">Warheads <b>${bombs}</b></span>
@@ -193,6 +194,7 @@ export function bindGame(root: HTMLElement) {
     el.addEventListener('click', () => endGame(el.dataset.end as EndingId)))
 
   bindGuide(root)
+  startClock()
 }
 
 function bindGuide(root: HTMLElement) {

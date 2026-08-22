@@ -510,6 +510,7 @@
 .chip--ww3 { color: var(--war); }
 .chip--ww3 b { color: var(--war); font-weight: 700; }
 .chip--resolving { color: var(--accent); }
+.chip--clock b { font-variant-numeric: tabular-nums; min-width: 2ch; display: inline-block; text-align: right; }
 
 /* ---- side pick in chat ---- */
 .msg--choice .bubble { border-color: var(--accent); color: var(--text); }

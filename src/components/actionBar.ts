@@ -8,7 +8,7 @@ import { POPULATION, formatExact } from '../state/population'
 import { strike } from './fx'
 import { leaderRespond, someoneReacts } from '../net/respond'
 import { INBOX } from './chatPanel'
-import { endDay, resolveEnding } from '../state/turn'
+import { endDay, resolveEnding, retaliate } from '../state/turn'
 
 const ACTIONS = [
   ['diplomacy', 'Diplomacy'],
@@ -114,7 +114,7 @@ function run(act: string) {
 
     case 'invade': {
       if (!t) return
-      const weak = livingIn(t) <= POPULATION[t] * 0.55 || state.relations[t] === 'destroyed'
+      const weak = livingIn(t) <= POPULATION[t] * 0.45 || state.relations[t] === 'destroyed'
       if (holderOf(t) === me) return
       if (!weak && state.stats.military < 80) {
         say('SYSTEM', 'GLOBAL', `${short(t)} is holding. Weaken them first, or mobilise past 80.`, 'system')
@@ -148,13 +148,13 @@ function run(act: string) {
         const toll = strikeCountry(t, me, r)
         bumpStats({ standing: -22, morale: -10, economy: -8 })
         say('SYSTEM', 'GLOBAL', `${short(t)} ${r} — ${formatExact(toll)} dead`, 'system')
-        if (livingIn(t) <= POPULATION[t] * 0.55) {
+        if (livingIn(t) <= POPULATION[t] * 0.45) {
           conquer(me, t)
           say('SYSTEM', 'GLOBAL', `${short(t)} has fallen. It is yours.`, 'system')
         }
-        // the room reacts to the launch — the funniest beat in the game
-        someoneReacts([t])
+        someoneReacts([t], `${short(me)} just struck ${short(t)} (${r}, ${formatExact(toll)} dead). React to that specific act, as your government would.`)
         resolveEnding()
+        if (!state.ending) void retaliate(t)
       }, 1400)
       break
     }
