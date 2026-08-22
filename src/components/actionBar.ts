@@ -139,7 +139,7 @@ function run(act: string) {
       const r = state.targetRegion
       state.nukesLaunched++
       setDefcon(1)
-      strike(me, t, `${short(t).toUpperCase()} · ${r.toUpperCase()}`)
+      strike(me, t, `${short(t).toUpperCase()} · ${r.toUpperCase()}`, r)
       mem(t).trust = Math.min(mem(t).trust, -100)
       nudgeTrust(t, -30, 'you nuked them')
       nudgeAll(-30, `you nuked ${short(t)}`, [t])

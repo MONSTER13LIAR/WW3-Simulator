@@ -1,4 +1,5 @@
-import { centroidOf, MAP_VIEWBOX } from './worldMap'
+import { centroidOf, regionPoint, MAP_VIEWBOX } from './worldMap'
+import type { Region } from '../state/types'
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
 
@@ -58,12 +59,12 @@ function overlay(): SVGSVGElement | null {
  * Full strike sequence: missile arc → impact flash → shockwave rings →
  * mushroom cloud, plus a screen shake and a red vignette pulse.
  */
-export function strike(fromId: string, toId: string, label = 'IMPACT') {
+export function strike(fromId: string, toId: string, label = 'IMPACT', region?: Region) {
   const svg = overlay()
   if (!svg) return
 
   const [x1, y1] = centroidOf(fromId)
-  const [x2, y2] = centroidOf(toId)
+  const [x2, y2] = region ? regionPoint(toId, region) : centroidOf(toId)
 
   const group = el('g', { class: 'fx' })
   svg.appendChild(group)

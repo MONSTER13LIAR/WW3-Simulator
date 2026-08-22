@@ -634,13 +634,27 @@
 }
 .country.is-playable { cursor: pointer; }
 .country.is-playable:hover { fill: var(--map-hover); }
-.country.rel-self  { fill: var(--accent); stroke: #ffd07a; }
-.country.rel-ally  { fill: var(--ally); stroke: #34b795; }
-.country.rel-war   { fill: var(--war); stroke: #ff7a6b; animation: warpulse 1.6s ease-in-out infinite; }
-.country.rel-destroyed { fill: var(--dead); stroke: #57221a; animation: embers 2.6s ease-in-out infinite; }
+.country.is-playable { fill-opacity: .78; }
+/* Every state has its own colour (inline); relation shows on the edge so the colour stays honest. */
+.country.rel-self  { fill-opacity: 1; stroke: var(--accent); stroke-width: 1.3; }
+.country.rel-ally  { stroke: var(--ally); stroke-width: 1.2; }
+.country.rel-war   { stroke: #ff7a6b; stroke-width: 1.1; animation: warpulse 1.6s ease-in-out infinite; }
+.country.rel-destroyed { fill-opacity: .35; stroke: #57221a; animation: embers 2.6s ease-in-out infinite; }
+.country.is-held { stroke-dasharray: 3 2; }
 
-@keyframes warpulse { 0%,100% { fill-opacity: 1 } 50% { fill-opacity: .62 } }
-@keyframes embers   { 0%,100% { fill: #1a0f0d } 50% { fill: #3a1611 } }
+@keyframes warpulse { 0%,100% { fill-opacity: .78 } 50% { fill-opacity: .4 } }
+@keyframes embers   { 0%,100% { fill-opacity: .35 } 50% { fill-opacity: .18 } }
+
+/* ---- map labels ---- */
+.label { pointer-events: none; font-family: var(--mono, ui-monospace, monospace); }
+.label text { fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,.75); stroke-width: 2.2px; stroke-linejoin: round; }
+.label-name { font-size: 7.5px; font-weight: 700; letter-spacing: .04em; }
+.label-pop  { font-size: 6px; fill: #d8dde6; }
+.label-tag  { font-size: 5px; letter-spacing: .18em; font-weight: 700; }
+.label.tag-you  .label-tag { fill: var(--accent); }
+.label.tag-ally .label-tag { fill: #7fe6cd; }
+.label.tag-war  .label-tag { fill: #ff7a6b; }
+.label.is-dead text { opacity: .45; }
 
 .pin { fill: none; stroke: var(--text-faint); stroke-width: .8; pointer-events: none; }
 .pin.rel-self { fill: var(--accent); stroke: #fff; }

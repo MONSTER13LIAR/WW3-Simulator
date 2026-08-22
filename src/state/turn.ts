@@ -149,7 +149,7 @@ async function aiLaunch(from: CountryId, to: CountryId): Promise<void> {
   const fromShort = LEADERS.find(l => l.id === from)?.short ?? from
   const toShort = LEADERS.find(l => l.id === to)?.short ?? to
   say(from, 'GLOBAL', `Launch confirmed on ${toShort}. ${r} sector.`, 'action')
-  strikeFx(from, to, `${toShort.toUpperCase()} · ${r.toUpperCase()}`)
+  strikeFx(from, to, `${toShort.toUpperCase()} · ${r.toUpperCase()}`, r)
   await wait(1400)
   const toll = strikeCountry(to, from, r)
   say('SYSTEM', 'GLOBAL', `${fromShort} struck ${toShort} — ${formatExact(toll)} dead`, 'system')
