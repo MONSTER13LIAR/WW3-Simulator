@@ -12,7 +12,9 @@ import { flagDefs, flagAt } from './flags'
 
 /** Flag cells are fatter than plain dots, so the panel reads as a ball pit. */
 const FLAG_R = 0.44
-const DOT_R = 0.34
+const DOT_R = 0.30
+/** The letterform reads over the board when its cells are clearly the bigger ones. */
+const LIT_R = 0.42
 
 const ROWS = 7
 const COLS = 5
@@ -139,7 +141,7 @@ export function dotType(text: string, opts: Options = {}): string {
 
         // unlit cells carry their glyph index so the sparkle can pick per letter
         dots.push(
-          `<circle cx="${cx + 0.5}" cy="${y + 0.5}" r="${DOT_R}"` +
+          `<circle cx="${cx + 0.5}" cy="${y + 0.5}" r="${lit ? LIT_R : DOT_R}"` +
           ` class="dot${lit ? ' dot--lit' : ''}" style="--d:${step}ms"${lit ? '' : ` data-g="${i}"`}/>`
         )
       }
