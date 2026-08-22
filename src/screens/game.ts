@@ -31,22 +31,38 @@ let seenAtCollapse = 0
  * the store, so it lives here, like the rail toggle.
  */
 const GUIDE = [
-  { at: 'hud',    side: 'down',  text: 'Your country. Population and the four stats every order spends or earns.' },
-  { at: 'map',    side: 'up',    text: 'The world. Every state has its own colour; yours is blue. Click one to talk to it.' },
-  { at: 'orders', side: 'up',    text: 'Orders. Pick a target and a quarter, then act. End the day to let the world move.' },
-  { at: 'chat',   side: 'left',  text: 'The room. Every other state is here, talking to you and to each other.' },
+  { at: 'chat',   side: 'left', text: 'The room. Every other state is in here — talking to you, and to each other behind your back.' },
+  { at: 'hud',    side: 'down', text: 'Your country. Population, and the four stats every order spends or earns.' },
+  { at: 'map',    side: 'up',   text: 'The world. Every state in its own colour with its population live on the map. Yours is blue. Click one to talk to it.' },
+  { at: 'orders', side: 'up',   text: 'Orders. Pick a target and a quarter, then act. End the day and the world moves without you.' },
 ] as const
 
+let guideStep = 0
+
 function renderGuide(): string {
+  const g = GUIDE[guideStep]
+  const last = guideStep === GUIDE.length - 1
   return `
   <div class="guide" data-guide>
-    ${GUIDE.map(g => `
-      <div class="callout callout--${g.at} callout--${g.side}">
-        <span class="callout-arrow">${arrowRight()}</span>
+    <div class="callout callout--${g.at} callout--${g.side}" key="${guideStep}">
+      <span class="callout-arrow">${arrowRight()}</span>
+      <div>
         <p>${g.text}</p>
-      </div>`).join('')}
-    <button class="btn btn--primary guide-go" data-guide-go>Begin <span class="btn-arrow">${arrowRight()}</span></button>
+        <button class="guide-next" data-guide-next>
+          <small>${guideStep + 1} / ${GUIDE.length}</small>
+          ${last ? 'Begin' : 'Next'} <span class="btn-arrow">${arrowRight()}</span>
+        </button>
+      </div>
+    </div>
   </div>`
+}
+
+/** Blur everything except the area the current callout is about. */
+function applyGuideFocus(root: HTMLElement) {
+  const game = root.querySelector('.game')
+  if (!game) return
+  for (const g of GUIDE) game.classList.remove(`focus-${g.at}`)
+  game.classList.add(`focus-${GUIDE[guideStep].at}`)
 }
 
 /** Whether this run's WW3 alarm has already fired; reset on mount. */
@@ -96,7 +112,7 @@ export function renderGame(): string {
   railOpen = true
   alarmed = false
   return `
-  <div class="screen game is-guided">
+  <div class="screen game is-guided focus-${GUIDE[guideStep = 0].at}">
     ${renderGuide()}
     <header class="topbar">
       <span class="brand">WW3 <span>Simulator</span></span>
@@ -170,9 +186,23 @@ export function bindGame(root: HTMLElement) {
   root.querySelectorAll<HTMLElement>('[data-end]').forEach(el =>
     el.addEventListener('click', () => endGame(el.dataset.end as EndingId)))
 
-  root.querySelector<HTMLElement>('[data-guide-go]')?.addEventListener('click', () => {
-    root.querySelector('.game')?.classList.remove('is-guided')
-    root.querySelector('[data-guide]')?.remove()
+  bindGuide(root)
+}
+
+function bindGuide(root: HTMLElement) {
+  root.querySelector<HTMLElement>('[data-guide-next]')?.addEventListener('click', () => {
+    const game = root.querySelector('.game')
+    if (guideStep >= GUIDE.length - 1) {
+      for (const g of GUIDE) game?.classList.remove(`focus-${g.at}`)
+      game?.classList.remove('is-guided')
+      root.querySelector('[data-guide]')?.remove()
+      return
+    }
+    guideStep++
+    const old = root.querySelector('[data-guide]')
+    if (old) old.outerHTML = renderGuide()
+    applyGuideFocus(root)
+    bindGuide(root)
   })
 }
 
