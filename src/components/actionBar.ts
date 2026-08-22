@@ -1,7 +1,7 @@
 import { LEADERS, LEADER_BY_ID } from '../state/mock'
 import {
   state, say, setDefcon, bumpStats, openChannel, strikeCountry, nudgeTrust, nudgeAll,
-  formAlliance, bombsOf, spendBomb, conquer, holderOf, setTargetRegion, livingIn, mem,
+  formAlliance, bombsOf, spendBomb, conquer, holderOf, setTargetRegion, livingIn, mem, areAllied,
 } from '../state/store'
 import { REGIONS, type Region } from '../state/types'
 import { POPULATION, formatExact } from '../state/population'
@@ -22,34 +22,39 @@ const ACTIONS = [
 
 const REGION_LABEL: Record<Region, string> = { north: 'N', west: 'W', east: 'E', south: 'S' }
 
+const isAlly = (id: string | null) => !!id && !!state.playerId && areAllied(state.playerId, id)
+const HOSTILE = new Set(['sanction', 'invade'])
+
 export function renderActionBar(): string {
   const t = target()
+  const ally = isAlly(t)
   const lock = state.resolving || state.phase !== 'play' ? ' disabled' : ''
+  const hostile = lock || (ally ? ' disabled' : '')
   const bombs = state.playerId ? bombsOf(state.playerId) : 0
   return `
   <div class="actionbar" data-sig="${actionBarSignature()}">
     <span class="eyebrow">Orders</span>
-    ${ACTIONS.map(([k, label]) => `<button class="act" data-act="${k}"${lock}>${label}</button>`).join('')}
+    ${ACTIONS.map(([k, label]) => `<button class="act" data-act="${k}"${HOSTILE.has(k) ? hostile : lock}${HOSTILE.has(k) && ally ? ` title="${short(t!)} is your ally"` : ''}>${label}</button>`).join('')}
     <span class="target" title="Where the next warhead lands">
       <span class="eyebrow">Target</span>
-      <b>${t ? (LEADER_BY_ID.get(t)?.short ?? t) : '—'}</b>
+      <b>${t ? (LEADER_BY_ID.get(t)?.short ?? t) : '—'}${ally ? ' <small>ally</small>' : ''}</b>
       <span class="regions">${REGIONS.map(r =>
         `<button class="region${state.targetRegion === r ? ' on' : ''}" data-region="${r}" title="${r}">${REGION_LABEL[r]}</button>`).join('')}</span>
     </span>
-    <button class="act act--nuke" data-act="launch"${lock || (bombs ? '' : ' disabled')}>☢ Launch <b>${bombs}</b></button>
+    <button class="act act--nuke" data-act="launch"${hostile || (bombs ? '' : ' disabled')}${ally ? ` title="You cannot launch on an ally"` : ''}>☢ Launch <b>${bombs}</b></button>
   </div>`
 }
 
 /** Fingerprint of what the bar shows, so the game screen can patch it only when it changes. */
 export function actionBarSignature(): string {
-  return `${state.resolving}|${state.phase}|${state.targetRegion}|${target()}|${state.playerId ? bombsOf(state.playerId) : 0}`
+  return `${state.resolving}|${state.phase}|${state.targetRegion}|${target()}|${isAlly(target())}|${state.playerId ? bombsOf(state.playerId) : 0}`
 }
 
 /** Prefer whoever you are currently talking to; otherwise the first live rival. */
 function target(): string | null {
   const ch = state.openChannel
   if (ch !== 'GLOBAL' && ch !== INBOX && ch !== 'INTERCEPT' && ch !== state.playerId && LEADER_BY_ID.has(ch)) return ch
-  const alive = LEADERS.filter(l => l.id !== state.playerId && state.relations[l.id] !== 'destroyed')
+  const alive = LEADERS.filter(l => l.id !== state.playerId && state.relations[l.id] !== 'destroyed' && !isAlly(l.id))
   return alive.length ? alive[(state.day * 3) % alive.length].id : null
 }
 
@@ -67,6 +72,10 @@ function run(act: string) {
   const t = target()
   const me = state.playerId
   if (!me) return
+  if ((act === 'launch' || act === 'sanction' || act === 'invade') && isAlly(t)) {
+    say('SYSTEM', 'GLOBAL', `${short(t!)} is your ally. Leave the alliance first.`, 'system')
+    return
+  }
 
   switch (act) {
     case 'diplomacy':

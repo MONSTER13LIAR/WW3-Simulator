@@ -566,6 +566,7 @@
   border-left: 1px solid var(--line);
 }
 .target b { font-size: 12px; color: var(--text); font-weight: 500; }
+.target b small { color: #7fe6cd; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; margin-left: 4px; }
 .regions { display: inline-flex; gap: 3px; }
 .region {
   width: 24px; height: 24px;
