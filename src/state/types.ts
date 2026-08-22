@@ -17,8 +17,8 @@ export interface Strike {
   dead: number
 }
 
-/** Chat threads: the room, a DM with one leader, or intercepted traffic between two AIs. */
-export type Channel = CountryId | 'GLOBAL' | 'INTERCEPT'
+/** Chat threads: the room, a DM with one leader, intercepted traffic between two AIs, or your alliance. */
+export type Channel = CountryId | 'GLOBAL' | 'INTERCEPT' | 'BLOC'
 
 export interface Leader {
   /** topojson country name — the join key between data and map geometry */
@@ -65,7 +65,14 @@ export interface LeaderMemory {
   lastContact: number
 }
 
-export type MsgKind = 'said' | 'system' | 'action'
+export type MsgKind = 'said' | 'system' | 'action' | 'choice'
+
+/** A decision put to the player inside the chat: two sides, one click. */
+export interface Choice {
+  options: Array<{ label: string; members: CountryId[] }>
+  /** index picked, once picked */
+  picked?: number
+}
 
 export interface ChatMsg {
   id: string
@@ -78,7 +85,21 @@ export interface ChatMsg {
   day: number
   /** set on intercepts: who the line was actually addressed to */
   to?: CountryId
+  /** set on kind 'choice' */
+  choice?: Choice
 }
+
+/** The incident the game opens on: one state struck another and the room split over it. */
+export interface Crisis {
+  aggressor: CountryId
+  victim: CountryId
+  region: Region
+  /** the aggressor's side and the victim's side, leaders included */
+  sides: [CountryId[], CountryId[]]
+}
+
+/** guide → opening (the room argues, you pick a side) → play */
+export type Phase = 'guide' | 'opening' | 'play'
 
 export type EndingId =
   | 'annihilation' | 'victory' | 'colonized' | 'debt'
@@ -129,6 +150,10 @@ export interface GameState {
   worldWarDay: number
   /** region the next launch is aimed at */
   targetRegion: Region
+  phase: Phase
+  crisis: Crisis | null
+  /** the side the player joined (their alliance channel members) */
+  bloc: CountryId[]
   /** true once the player's own country is gone */
   playerDestroyed: boolean
   /** messages the player has sent, all channels — drives the Forgotten ending */

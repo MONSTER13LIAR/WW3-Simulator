@@ -2,7 +2,7 @@ import { leaderReply, type LeaderTurn } from './featherless'
 
 /** Crude per-IP token bucket so a demo that goes around doesn't drain the account. */
 const WINDOW_MS = 60_000
-const MAX_PER_WINDOW = 40
+const MAX_PER_WINDOW = 60
 const buckets = new Map<string, { n: number; reset: number }>()
 
 function rateLimited(ip: string): boolean {
@@ -20,6 +20,9 @@ export interface HandlerResult {
   status: number
   body: unknown
 }
+
+const str = (v: unknown, max = 600) => typeof v === 'string' ? v.slice(0, max) : undefined
+const strs = (v: unknown, n = 8) => Array.isArray(v) ? v.filter(x => typeof x === 'string').slice(0, n) as string[] : []
 
 export async function handleLeader(
   raw: unknown,
@@ -39,10 +42,17 @@ export async function handleLeader(
     leaderId: t.leaderId,
     playerId: t.playerId,
     channel: typeof t.channel === 'string' ? t.channel : 'GLOBAL',
-    history: Array.isArray(t.history) ? t.history.slice(-10) : [],
+    history: Array.isArray(t.history) ? t.history.slice(-12) : [],
     day: Number(t.day) || 1,
     defcon: Number(t.defcon) || 5,
     atWar: Boolean(t.atWar),
+    trust: Number(t.trust) || 0,
+    grudges: strs(t.grudges),
+    playerAllied: Boolean(t.playerAllied),
+    bloc: strs(t.bloc),
+    brief: str(t.brief, 1200) ?? '',
+    nudge: str(t.nudge),
+    toId: str(t.toId, 80),
   }
 
   const reply = await leaderReply(turn, env)

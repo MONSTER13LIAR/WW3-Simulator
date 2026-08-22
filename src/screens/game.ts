@@ -5,6 +5,7 @@ import { renderHud, resetHudMemory, hudSignature } from '../components/statsHud'
 import { renderActionBar, bindActionBar, actionBarSignature } from '../components/actionBar'
 import { worldWarAlarm } from '../components/fx'
 import { MAX_DAYS } from '../state/turn'
+import { runOpening } from '../state/opening'
 import { renderRail, bindRail, updateRail } from '../components/chatPanel'
 import { ENDINGS } from '../state/mock'
 import { formatPop, formatExact } from '../state/population'
@@ -163,7 +164,10 @@ export function updateGame(root: HTMLElement) {
   if (state.worldWar && !alarmed) { alarmed = true; worldWarAlarm() }
 
   const toggle = root.querySelector<HTMLElement>('[data-rail-toggle]')
-  if (toggle) toggle.innerHTML = railToggle()
+  if (toggle) {
+    toggle.innerHTML = railToggle()
+    toggle.toggleAttribute('disabled', state.phase === 'opening')
+  }
 
   updateRail(root)
 }
@@ -177,6 +181,8 @@ export function bindGame(root: HTMLElement) {
 
   const toggle = root.querySelector<HTMLButtonElement>('[data-rail-toggle]')
   toggle?.addEventListener('click', () => {
+    // the room cannot be closed while it is deciding what to do about you
+    if (state.phase === 'opening') return
     railOpen = !railOpen
     if (!railOpen) seenAtCollapse = state.messages.length
     root.querySelector('.game-body')?.classList.toggle('rail-closed', !railOpen)
@@ -196,6 +202,7 @@ function bindGuide(root: HTMLElement) {
       for (const g of GUIDE) game?.classList.remove(`focus-${g.at}`)
       game?.classList.remove('is-guided')
       root.querySelector('[data-guide]')?.remove()
+      void runOpening()
       return
     }
     guideStep++

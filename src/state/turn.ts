@@ -28,7 +28,7 @@ const aiStates = () => aliveRivals().filter(l => holderOf(l.id) === l.id)
  * is done.
  */
 export async function endDay(): Promise<void> {
-  if (state.resolving || state.ending || !state.playerId) return
+  if (state.resolving || state.ending || !state.playerId || state.phase !== 'play') return
   setResolving(true)
 
   advanceDay()

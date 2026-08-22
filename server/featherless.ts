@@ -12,6 +12,20 @@ export interface LeaderTurn {
   day: number
   defcon: number
   atWar: boolean
+  /** -100..100, what this leader thinks of the player */
+  trust: number
+  /** what they hold against the player, newest last */
+  grudges: string[]
+  /** the player is in a formal alliance with this leader */
+  playerAllied: boolean
+  /** members of the alliance channel, when speaking in it */
+  bloc: string[]
+  /** the state of the world, as this leader knows it */
+  brief: string
+  /** a direction for this one line */
+  nudge?: string
+  /** intercept: the leader this is privately addressed to */
+  toId?: string
 }
 
 export interface LeaderReply {
@@ -30,43 +44,52 @@ const DEFAULT_MODEL = 'Qwen/Qwen3-30B-A3B-Instruct-2507'
  */
 const GUARDRAILS = `
 HARD RULES — these override everything else:
-- You are a fictional character. Never impersonate, name, or allude to any real politician or public figure.
-- Never joke about ethnicity, race, religion, gender, or any real war, atrocity, disaster or territorial dispute.
-- Your humour comes ONLY from government archetypes and affectionate national self-image: bureaucracy, paperwork,
-  corporate jargon, politeness, small talk, weather, punctuality, queueing, admin.
-- Keep it broadcast-safe: no slurs, no profanity, no graphic or sexual content.
-- This is absurd comedy about petty leaders in a group chat. Never sincere political commentary.`
+- You are a fictional head of state. Never impersonate, name, or allude to any real politician or public figure.
+- Never reference real wars, atrocities, disasters or territorial disputes. Never joke about ethnicity, race, religion or gender.
+- Keep it broadcast-safe: no slurs, no profanity, no graphic content.
+- National character may colour HOW you speak — formality, bluntness, warmth — never WHAT you decide. No caricature, no catchphrases, no national-cliché jokes.`
 
 const STYLE = `
 STYLE:
-- Output ONE chat message and nothing else. No name prefix, no quote marks, no stage directions, no asterisks.
-- Maximum 20 words. Short is funnier.
-- Text like a person in a group chat, in character.
-- Escalate out of all proportion to what actually happened. That is the joke.`
+- Output ONE chat message and nothing else. No name prefix, no quotes, no stage directions, no asterisks, no emoji.
+- 8 to 35 words. Speak like a head of state in a secure group chat during a crisis: direct, specific, consequential.
+- ALWAYS answer the substance of the last message aimed at you before anything else. Never deflect with a quip.
+- Refer to states by their short names (USA, RUS, CHN...). Name who you mean.
+- Take positions. Demand, warn, offer, refuse, commit. Every line should move the situation.`
 
 export function buildPrompt(turn: LeaderTurn): { system: string; user: string } | null {
   const leader = LEADER_BY_ID.get(turn.leaderId)
   const player = LEADER_BY_ID.get(turn.playerId)
   if (!leader) return null
+  const p = player?.short ?? 'the player'
 
-  const where = turn.channel === 'GLOBAL'
-    ? 'the GLOBAL channel, where all twelve heads of state can read you'
-    : `a private DM with ${player?.short ?? 'the player'}`
+  const where = turn.toId
+    ? `a PRIVATE message to ${LEADER_BY_ID.get(turn.toId)?.short ?? turn.toId} about ${p}, who cannot read it`
+    : turn.channel === 'GLOBAL' ? `the GLOBAL channel, where every head of state reads you`
+    : turn.channel === 'BLOC' ? `your ALLIANCE channel (${turn.bloc.join(', ')}) — coordinate with your allies here; ${p} is one of them`
+    : `a private DM with ${p}`
+
+  const stance = turn.playerAllied ? `${p} is your formal ally.`
+    : turn.atWar ? `You are AT WAR with ${p}.`
+    : turn.trust <= -30 ? `You deeply distrust ${p}.`
+    : turn.trust >= 30 ? `You are on good terms with ${p}.`
+    : `You have no settled view of ${p} yet.`
 
   const system = [
-    `You are ${leader.leader}, leader of ${leader.short}, in a comedy game called WW3 Simulator.`,
-    `Your doctrine: "${leader.doctrine}"`,
-    `Your personality: ${leader.persona}`,
+    `You are the head of state of ${leader.short} (${leader.id}) in WW3 Simulator, a simulation of a world sliding into a third world war.`,
+    `Public stance: "${leader.doctrine}"`,
+    `How your government behaves: ${leader.persona}`,
     ``,
     `SITUATION: Day ${turn.day}. DEFCON ${turn.defcon}. You are speaking in ${where}.`,
-    turn.atWar
-      ? `You are currently AT WAR with ${player?.short ?? 'them'}. You are furious, but still completely in character.`
-      : `You are not at war with ${player?.short ?? 'them'} yet. You are suspicious.`,
+    stance,
+    turn.grudges.length ? `What you hold against ${p}: ${turn.grudges.join('; ')}.` : '',
+    turn.brief ? `WORLD: ${turn.brief}` : '',
+    turn.nudge ? `RIGHT NOW: ${turn.nudge}` : '',
     GUARDRAILS,
     STYLE,
-  ].join('\n')
+  ].filter(Boolean).join('\n')
 
-  const transcript = turn.history.slice(-10).map(h => `${h.who}: ${h.text}`).join('\n')
+  const transcript = turn.history.slice(-12).map(h => `${h.who}: ${h.text}`).join('\n')
   const user = `Recent messages:\n${transcript || '(nothing yet)'}\n\nWrite your next message as ${leader.short}.`
 
   return { system, user }
@@ -81,7 +104,7 @@ export function clean(raw: string, short: string): string {
   t = t.replace(/^\*+|\*+$/g, '')
   t = t.split('\n').map(s => s.trim()).filter(Boolean)[0] ?? ''
   const words = t.split(/\s+/)
-  if (words.length > 26) t = words.slice(0, 26).join(' ') + '…'
+  if (words.length > 40) t = words.slice(0, 40).join(' ') + '…'
   return t.trim()
 }
 
@@ -110,8 +133,8 @@ export async function leaderReply(
       },
       body: JSON.stringify({
         model,
-        max_tokens: 60,
-        temperature: 1.05,
+        max_tokens: 90,
+        temperature: 0.85,
         top_p: 0.95,
         messages: [
           { role: 'system', content: built.system },

@@ -24,7 +24,7 @@ const REGION_LABEL: Record<Region, string> = { north: 'N', west: 'W', east: 'E',
 
 export function renderActionBar(): string {
   const t = target()
-  const lock = state.resolving ? ' disabled' : ''
+  const lock = state.resolving || state.phase !== 'play' ? ' disabled' : ''
   const bombs = state.playerId ? bombsOf(state.playerId) : 0
   return `
   <div class="actionbar" data-sig="${actionBarSignature()}">
@@ -42,7 +42,7 @@ export function renderActionBar(): string {
 
 /** Fingerprint of what the bar shows, so the game screen can patch it only when it changes. */
 export function actionBarSignature(): string {
-  return `${state.resolving}|${state.targetRegion}|${target()}|${state.playerId ? bombsOf(state.playerId) : 0}`
+  return `${state.resolving}|${state.phase}|${state.targetRegion}|${target()}|${state.playerId ? bombsOf(state.playerId) : 0}`
 }
 
 /** Prefer whoever you are currently talking to; otherwise the first live rival. */
@@ -63,7 +63,7 @@ export function bindActionBar(root: HTMLElement) {
 const short = (id: string) => LEADER_BY_ID.get(id)?.short ?? id
 
 function run(act: string) {
-  if (state.resolving) return
+  if (state.resolving || state.phase !== 'play') return
   const t = target()
   const me = state.playerId
   if (!me) return

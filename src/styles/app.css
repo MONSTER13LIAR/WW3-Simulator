@@ -511,6 +511,25 @@
 .chip--ww3 b { color: var(--war); font-weight: 700; }
 .chip--resolving { color: var(--accent); }
 
+/* ---- side pick in chat ---- */
+.msg--choice .bubble { border-color: var(--accent); color: var(--text); }
+.sides { display: grid; gap: 6px; margin-top: 6px; }
+.side {
+  display: flex; align-items: center; gap: var(--s2);
+  padding: 10px 12px; text-align: left;
+  border: 1px solid var(--line-strong); border-radius: var(--r2);
+  background: var(--ink-850); color: var(--text);
+  font-size: 12px; letter-spacing: 0;
+  transition: border-color .16s, background .16s;
+}
+.side b { font-weight: 600; }
+.side:hover:not(:disabled) { border-color: var(--accent); background: var(--ink-800); }
+.side:disabled { opacity: .45; }
+.side.is-picked:disabled { opacity: 1; border-color: var(--accent); background: var(--accent-dim); }
+.thread--bloc .t b { color: #7fe6cd; }
+.who i { font-style: normal; color: var(--text-faint); }
+.rail-toggle:disabled { opacity: .4; cursor: not-allowed; }
+
 /* ---- target selector + arsenal ---- */
 .target {
   display: inline-flex; align-items: center; gap: var(--s2);

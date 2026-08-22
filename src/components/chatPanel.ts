@@ -1,12 +1,14 @@
 import { LEADERS, LEADER_BY_ID } from '../state/mock'
-import { state, messagesFor, openChannel, say } from '../state/store'
-import { leaderRespond } from '../net/respond'
+import { state, messagesFor, openChannel, say, alliesOf } from '../state/store'
+import { leaderRespond, blocReacts } from '../net/respond'
+import { pickSide } from '../state/opening'
 import type { ChatMsg } from '../state/types'
 
 export const INBOX = 'INBOX'
 
-const QUICK_GLOBAL = ['gm 🙏', 'Who did this.', 'I demand a summit.', 'Nobody panic.']
-const QUICK_DM = ['k', 'Seen.', 'Is that a threat?', 'Alliance?', 'Absolutely not.']
+const QUICK_GLOBAL = ['Who fired first?', 'We want a ceasefire.', 'Stand down.', 'Name your terms.']
+const QUICK_DM = ['We should talk.', 'What do you want?', 'Proposal: alliance.', 'That is a threat.']
+const QUICK_BLOC = ['What is the plan?', 'We will commit.', 'Hold. Do not escalate.', 'Who strikes first?']
 
 /** Message ids that have already been on screen; they must not re-animate. */
 const mounted = new Set<string>()
@@ -16,10 +18,19 @@ const esc = (s: string) => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;'
 function bubble(m: ChatMsg): string {
   const mine = m.from === state.playerId
   const l = m.from !== 'SYSTEM' ? LEADER_BY_ID.get(m.from) : null
-  const cls = m.kind === 'system' ? 'msg--system' : m.kind === 'action' ? 'msg--action' : mine ? 'msg--me' : ''
-  const who = m.kind === 'system' ? '' : `<span class="who">${l ? `${l.flag} ${l.short}` : ''}</span>`
+  const cls = m.kind === 'system' ? 'msg--system' : m.kind === 'action' ? 'msg--action' : m.kind === 'choice' ? 'msg--choice' : mine ? 'msg--me' : ''
+  const to = m.to ? ` <i>→ ${LEADER_BY_ID.get(m.to)?.short ?? m.to}</i>` : ''
+  const who = m.kind === 'system' || m.kind === 'choice' ? '' : `<span class="who">${l ? `${l.flag} ${l.short}` : ''}${to}</span>`
   const fresh = mounted.has(m.id) ? '' : ' is-new'
   mounted.add(m.id)
+  if (m.kind === 'choice' && m.choice) {
+    const picked = m.choice.picked
+    const opts = m.choice.options.map((o, i) => `
+      <button class="side${picked === i ? ' is-picked' : ''}" data-side="${i}" data-mid="${m.id}"${picked !== undefined ? ' disabled' : ''}>
+        ${o.members.map(id => LEADER_BY_ID.get(id)?.flag ?? '').join(' ')}<b>${esc(o.label)}</b>
+      </button>`).join('')
+    return `<div class="msg ${cls}${fresh}" data-mid="${m.id}"><div class="bubble">${esc(m.text)}</div><div class="sides">${opts}</div></div>`
+  }
   return `<div class="msg ${cls}${fresh}" data-mid="${m.id}">${who}<div class="bubble">${esc(m.text)}</div></div>`
 }
 
@@ -37,7 +48,7 @@ function renderInbox(): string {
       return `
       <button class="thread${war}" data-ch="${l.id}">
         <span class="f">${l.flag}</span>
-        <span class="t"><b>${l.short} · ${l.leader.split(' ').slice(-1)[0]}</b><small>${esc(lastLine(l.id))}</small></span>
+        <span class="t"><b>${l.short}${alliesOf(state.playerId!).includes(l.id) ? ' · ally' : ''}</b><small>${esc(lastLine(l.id))}</small></span>
         ${n ? `<span class="n">${n}</span>` : '<span></span>'}
       </button>`
     }).join('')
@@ -50,7 +61,23 @@ function renderInbox(): string {
       ${gn ? `<span class="n">${gn}</span>` : '<span></span>'}
     </button>`
 
-  return `<div class="inbox">${global}${rows}</div>`
+  const bn = state.unread['BLOC'] ?? 0
+  const bloc = state.bloc.length ? `
+    <button class="thread thread--bloc" data-ch="BLOC">
+      <span class="f">🤝</span>
+      <span class="t"><b>ALLIANCE · ${state.bloc.map(id => LEADER_BY_ID.get(id)?.short ?? id).join(' · ')}</b><small>${esc(lastLine('BLOC'))}</small></span>
+      ${bn ? `<span class="n">${bn}</span>` : '<span></span>'}
+    </button>` : ''
+
+  const ic = messagesFor('INTERCEPT').length
+  const intercept = ic ? `
+    <button class="thread thread--intercept" data-ch="INTERCEPT">
+      <span class="f">📡</span>
+      <span class="t"><b>INTERCEPTS</b><small>${esc(lastLine('INTERCEPT'))}</small></span>
+      ${state.unread['INTERCEPT'] ? `<span class="n">${state.unread['INTERCEPT']}</span>` : '<span></span>'}
+    </button>` : ''
+
+  return `<div class="inbox">${global}${bloc}${intercept}${rows}</div>`
 }
 
 function typingBubble(ch: string): string {
@@ -78,12 +105,16 @@ export function renderRail(): string {
     </aside>`
   }
 
-  const l = ch === 'GLOBAL' ? null : LEADER_BY_ID.get(ch)
-  const title = l ? `${l.flag} ${l.short}` : '🌐 Global Channel'
+  const l = LEADER_BY_ID.get(ch) ?? null
+  const title = l ? `${l.flag} ${l.short}` : ch === 'BLOC' ? '🤝 Alliance' : ch === 'INTERCEPT' ? '📡 Intercepts' : '🌐 Global Channel'
   const alive = LEADERS.filter(x => state.relations[x.id] !== 'destroyed').length
-  const sub = l ? l.leader : `${alive} of ${LEADERS.length} heads of state connected`
-  const quick = (l ? QUICK_DM : QUICK_GLOBAL)
+  const sub = l ? (l.id === 'United States of America' ? 'United States' : l.id)
+    : ch === 'BLOC' ? state.bloc.map(id => LEADER_BY_ID.get(id)?.short ?? id).join(' · ')
+    : ch === 'INTERCEPT' ? 'Traffic between other states. They do not know you can read it.'
+    : `${alive} of ${LEADERS.length} heads of state connected`
+  const quick = (l ? QUICK_DM : ch === 'BLOC' ? QUICK_BLOC : QUICK_GLOBAL)
     .map(q => `<button class="qb" data-quick="${esc(q)}">${esc(q)}</button>`).join('')
+  const canSend = ch !== 'INTERCEPT'
 
   return `
   <aside class="rail" data-channel="${esc(ch)}">
@@ -93,13 +124,13 @@ export function renderRail(): string {
       <span class="dot"></span>
     </div>
     <div class="log" id="log">${messagesFor(ch).map(bubble).join('')}${typingBubble(ch)}</div>
-    <div class="composer">
+    ${canSend ? `<div class="composer">
       <div class="quick">${quick}</div>
       <div class="row">
-        <input id="say" placeholder="${l ? `Message ${l.short}…` : 'Address the world…'}" autocomplete="off" />
+        <input id="say" placeholder="${l ? `Message ${l.short}…` : ch === 'BLOC' ? 'Message your allies…' : 'Address the world…'}" autocomplete="off" />
         <button class="send" id="send">Send</button>
       </div>
-    </div>
+    </div>` : '<div class="composer"><span class="eyebrow">Read only</span></div>'}
   </aside>`
 }
 
@@ -153,6 +184,9 @@ export function bindRail(root: HTMLElement) {
   root.querySelectorAll<HTMLElement>('[data-quick]').forEach(el =>
     el.addEventListener('click', () => send(el.dataset.quick!)))
 
+  root.querySelectorAll<HTMLButtonElement>('[data-side]').forEach(el =>
+    el.addEventListener('click', () => pickSide(el.dataset.mid!, Number(el.dataset.side))))
+
   const input = root.querySelector<HTMLInputElement>('#say')
   // Clear before send(): say() re-renders the rail synchronously and would
   // otherwise carry the old draft into the new input.
@@ -173,6 +207,9 @@ function send(text: string) {
   if (!state.playerId) return
   const ch = state.openChannel
   say(state.playerId, ch, text)
+
+  if (ch === 'BLOC') { blocReacts(); return }
+  if (ch === 'INTERCEPT') return
 
   const responder = ch === 'GLOBAL'
     ? LEADERS.filter(l => l.id !== state.playerId && state.relations[l.id] !== 'destroyed')[

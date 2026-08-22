@@ -1,5 +1,5 @@
 import type {
-  GameState, CountryId, Relation, ChatMsg, EndingId, Screen, Channel, LeaderMemory, Region,
+  GameState, CountryId, Relation, ChatMsg, EndingId, Screen, Channel, LeaderMemory, Region, Phase, Crisis,
 } from './types'
 import { LEADERS, LEADER_BY_ID, msg } from './mock'
 import { POPULATION, strikeToll } from './population'
@@ -68,6 +68,9 @@ export const state: GameState = {
   worldWar: false,
   worldWarDay: 0,
   targetRegion: 'north',
+  phase: 'guide',
+  crisis: null,
+  bloc: [],
   playerDestroyed: false,
   playerMessages: 0,
   resolving: false,
@@ -113,6 +116,9 @@ export function startGame(playerId: CountryId) {
   state.worldWar = false
   state.worldWarDay = 0
   state.targetRegion = 'north'
+  state.phase = 'guide'
+  state.crisis = null
+  state.bloc = []
   state.playerDestroyed = false
   state.playerMessages = 0
   state.resolving = false
@@ -316,6 +322,29 @@ function checkWorldWar(by: CountryId, target: CountryId) {
   state.worldWar = true
   state.worldWarDay = state.day
   state.defcon = 1
+}
+
+export function setPhase(p: Phase) {
+  state.phase = p
+  emit()
+}
+
+export function setCrisis(c: Crisis) {
+  state.crisis = c
+  emit()
+}
+
+export function setBloc(members: CountryId[]) {
+  state.bloc = members
+  emit()
+}
+
+/** Put a two-button decision into a channel. */
+export function ask(channel: Channel, text: string, options: Array<{ label: string; members: CountryId[] }>) {
+  const m = msg('SYSTEM', channel, text, state.day, 'choice')
+  m.choice = { options }
+  push(m)
+  return m
 }
 
 export function setTargetRegion(r: Region) {

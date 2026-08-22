@@ -1,24 +1,25 @@
 import { LEADERS, LEADER_BY_ID } from '../state/mock'
-import { state, say, addTyping, clearTyping } from '../state/store'
-import { askLeader } from './leaders'
+import { state, say, addTyping, clearTyping, alliesOf } from '../state/store'
+import { askLeader, type AskOptions } from './leaders'
 
 /**
  * Offline fallbacks. Used when there is no API key, the request fails, or it
- * times out — the game must stay playable on a dead link.
+ * times out — the game must stay playable on a dead link. Plain statements a
+ * government would actually issue, so a fallback never breaks the scene.
  */
 const FALLBACK: Record<string, string[]> = {
-  'France': ['I am choosing to interpret that as an insult.', 'I have left the alliance. I have rejoined. I am leaving again.'],
-  'Russia': ['no', '.', 'we will see'],
-  'Japan': ['I am so sorry to hear that. The fleet is already moving.', 'Thank you for your message. Please evacuate the coast.'],
-  'Germany': ['That response was not submitted in the approved format.', 'I am escalating this to Annex 7.'],
-  'United Kingdom': ['Ah. Right. Lovely.', 'No worries if not! (I have sunk your navy.)'],
-  'Switzerland': ['I have no opinion. Your account balance, however, does.', 'Neutral. Watching. Charging interest.'],
-  'Australia': ['yeah nah', 'sorry mate the bird’s back'],
-  'Canada': ['sorry — did I do something? sorry', 'okay. okay. that’s fine. that is completely fine.'],
-  'India': ['Kindly do the needful.', 'Forwarded to all 14 groups 🙏'],
-  'China': ['A rail link now connects our capitals. It was not requested.', 'Completed ahead of schedule.'],
-  'Brazil': ['come over, bring the tanks', 'this is a great energy honestly'],
-  'United States of America': ['Love this for us! Circling back post-detonation.', 'Let’s take this to a working group.'],
+  'United States of America': ['We are consulting our partners. Expect a coordinated response.', 'Our commitments to our allies stand.'],
+  'Russia': ['Noted.', 'We will respond at a time of our choosing.'],
+  'China': ['We urge all parties to exercise restraint.', 'Our position has not changed.'],
+  'India': ['We are in contact with all sides.', 'We will not be drawn into a bloc.'],
+  'Japan': ['We are consulting with our treaty partners.', 'Regional stability must be preserved.'],
+  'Germany': ['There must be a proportionate and lawful response.', 'We are convening our partners.'],
+  'France': ['France will decide its own line.', 'We stand with our allies. We will not be dictated to.'],
+  'United Kingdom': ['We stand by our obligations.', 'We are reviewing the intelligence.'],
+  'Brazil': ['We offer to mediate.', 'This is not our war. We would like to keep it that way.'],
+  'Australia': ['We will stand with our allies.', 'Sea lanes must stay open.'],
+  'Canada': ['We call for an immediate ceasefire and talks.', 'We are coordinating with the coalition.'],
+  'Switzerland': ['Switzerland remains neutral. We can host talks.', 'No comment. The accounts are noted.'],
 }
 
 function fallbackLine(id: string): string {
@@ -27,29 +28,38 @@ function fallbackLine(id: string): string {
 }
 
 /** Shows a typing indicator, asks the model, then posts whatever came back. */
-export async function leaderRespond(leaderId: string, channel: string): Promise<void> {
+export async function leaderRespond(leaderId: string, channel: string, opts: AskOptions = {}): Promise<void> {
   if (!LEADER_BY_ID.has(leaderId)) return
+  if (state.relations[leaderId] === 'destroyed') return
 
   addTyping(channel, leaderId)
   const started = Date.now()
 
-  const { text, fallback } = await askLeader(leaderId, channel)
+  const { text, fallback } = await askLeader(leaderId, channel, opts)
 
   // a reply that lands instantly reads as canned; give it a beat
   const elapsed = Date.now() - started
-  if (elapsed < 600) await new Promise(r => setTimeout(r, 600 - elapsed))
+  if (elapsed < 700) await new Promise(r => setTimeout(r, 700 - elapsed))
 
   clearTyping(leaderId)
-  say(leaderId, channel, fallback || !text ? fallbackLine(leaderId) : text)
+  say(leaderId, channel, fallback || !text ? fallbackLine(leaderId) : text, 'said', opts.toId)
 }
 
 /** Someone in the room reacts to what just happened, in the global channel. */
-export function someoneReacts(excludeIds: string[] = []): void {
+export function someoneReacts(excludeIds: string[] = [], nudge?: string): void {
   const pool = LEADERS.filter(l =>
     l.id !== state.playerId &&
     !excludeIds.includes(l.id) &&
     state.relations[l.id] !== 'destroyed')
   if (!pool.length) return
   const pick = pool[Math.floor(Math.random() * pool.length)]
-  void leaderRespond(pick.id, 'GLOBAL')
+  void leaderRespond(pick.id, 'GLOBAL', { nudge })
+}
+
+/** One of your allies answers in the alliance channel. */
+export function blocReacts(nudge?: string): void {
+  const pool = state.bloc.filter(id => state.relations[id] !== 'destroyed' && alliesOf(state.playerId!).includes(id))
+  if (!pool.length) return
+  const pick = pool[Math.floor(Math.random() * pool.length)]
+  void leaderRespond(pick, 'BLOC', { nudge })
 }
