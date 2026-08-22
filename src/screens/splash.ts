@@ -1,5 +1,5 @@
 import { goto } from '../state/store'
-import { dotType } from '../components/dotType'
+import { dotType, sparkle } from '../components/dotType'
 import { arrowRight } from '../components/arrow'
 import { pillar } from '../components/pillar'
 
@@ -68,6 +68,9 @@ export function renderSplash(): string {
 }
 
 export function bindSplash(root: HTMLElement) {
+  const board = root.querySelector('.wordmark-2')
+  if (board) sparkle(board)
+
   root.querySelector<HTMLElement>('[data-go="select"]')
     ?.addEventListener('click', () => goto('select'))
 

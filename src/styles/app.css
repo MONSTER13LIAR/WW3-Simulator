@@ -65,6 +65,10 @@
 @keyframes dot-dim-lg { to { opacity: .09; } }
 @keyframes dot-lit { from { opacity: 0; } to { opacity: 1; } }
 
+/* the sparkle: a few unlit cells per letter flick cyan each second */
+.dot { transition: fill .35s var(--ease), opacity .35s var(--ease); }
+.dot--spark { fill: #7fe8f5; opacity: .85 !important; }
+
 /* ---- flag cells ----
    Same cascade as the dots. Unlit cells are drained to near-paper so the flags
    that spell the word stay the only thing you read; the ghosts just keep the

@@ -49,6 +49,36 @@ type Options = {
 }
 
 /**
+ * A little life in the board: every second, 4–5 of each letter's unlit cells
+ * flick to cyan and the previous ones go dark again. The lit cells — the
+ * letterform — are never touched. Returns a stop function.
+ */
+export function sparkle(svg: Element, perGlyph = 4): () => void {
+  const byGlyph = new Map<string, Element[]>()
+  for (const d of svg.querySelectorAll('.dot[data-g]')) {
+    const g = (d as HTMLElement).dataset.g!
+    ;(byGlyph.get(g) ?? byGlyph.set(g, []).get(g)!).push(d)
+  }
+  let current: Element[] = []
+  const tick = () => {
+    for (const d of current) d.classList.remove('dot--spark')
+    current = []
+    for (const cells of byGlyph.values()) {
+      const n = perGlyph + (Math.random() < 0.5 ? 1 : 0)
+      const pool = [...cells]
+      for (let k = 0; k < n && pool.length; k++) {
+        const [d] = pool.splice(Math.floor(Math.random() * pool.length), 1)
+        d.classList.add('dot--spark')
+        current.push(d)
+      }
+    }
+  }
+  tick()
+  const timer = setInterval(tick, 1000)
+  return () => { clearInterval(timer); for (const d of current) d.classList.remove('dot--spark') }
+}
+
+/**
  * Renders `text` as an SVG dot grid. The viewBox is measured in cells, so the
  * caller sizes it with plain CSS width and the dots stay perfectly round.
  */
@@ -107,9 +137,10 @@ export function dotType(text: string, opts: Options = {}): string {
           continue
         }
 
+        // unlit cells carry their glyph index so the sparkle can pick per letter
         dots.push(
           `<circle cx="${cx + 0.5}" cy="${y + 0.5}" r="${DOT_R}"` +
-          ` class="dot${lit ? ' dot--lit' : ''}" style="--d:${step}ms"/>`
+          ` class="dot${lit ? ' dot--lit' : ''}" style="--d:${step}ms"${lit ? '' : ` data-g="${i}"`}/>`
         )
       }
     }
