@@ -11,6 +11,9 @@ import { renderGame, bindGame, updateGame } from './screens/game'
 import { renderEnding, bindEnding } from './screens/ending'
 import { clearFx } from './components/fx'
 
+// dev only: lets a browser driver read the store without a UI round-trip
+if (import.meta.env.DEV) (window as unknown as { __ww3: unknown }).__ww3 = state
+
 const app = document.getElementById('app')!
 
 /** Which screen is currently in the document, so we only remount on a change. */

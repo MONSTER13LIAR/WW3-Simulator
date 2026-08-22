@@ -158,8 +158,8 @@ export function worldWarAlarm() {
   }
   pulseVignette()
   setTimeout(() => pulseVignette(), 700)
-  setTimeout(() => v?.classList.add('out'), 4200)
-  setTimeout(() => v?.remove(), 5000)
+  setTimeout(() => v?.classList.add('out'), 6500)
+  setTimeout(() => v?.remove(), 7400)
 }
 
 /** called when leaving the game screen */

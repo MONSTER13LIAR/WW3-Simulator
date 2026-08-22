@@ -211,6 +211,11 @@ export function nudgeAll(delta: number, note?: string, exclude: CountryId[] = []
 export function syncRelation(id: CountryId) {
   if (state.relations[id] === 'destroyed' || id === state.playerId) return
   const t = mem(id).trust
+  // a signed pact holds through a bad mood; only open hostility tears it up
+  if (state.playerId && areAllied(state.playerId, id)) {
+    if (t <= WAR_AT) breakAlliance(state.playerId, id)
+    else { state.relations[id] = 'ally'; emit(); return }
+  }
   state.relations[id] = t >= ALLY_AT ? 'ally' : t <= WAR_AT ? 'war' : 'neutral'
   emit()
 }
