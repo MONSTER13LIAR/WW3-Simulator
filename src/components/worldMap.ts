@@ -58,7 +58,7 @@ export const MAP_VIEWBOX = { w: VB_W, h: VB_H }
  * accent, the war pulse and the embers still have to read over them.
  */
 export const COLOURS: Record<string, string> = {
-  'United States of America': '#4a6a9c',
+  'United States of America': '#4f7f8c',
   'Russia':                   '#8a4d4d',
   'China':                    '#a0533a',
   'India':                    '#b07a3a',
@@ -90,8 +90,18 @@ const LABEL_OFFSET: Record<string, [number, number]> = {
   'United States of America': [14, 8],
 }
 
+/**
+ * Reserved for whoever is playing, whichever country that is. Blue is the
+ * "friendly" colour in NATO APP-6 military symbology — the convention every
+ * war-room map the player has ever seen already uses — so it needs no legend.
+ * No state in COLOURS comes near it.
+ */
+export const PLAYER_COLOUR = '#2f80ed'
+
 export function colourOf(id: string): string | null {
-  return COLOURS[holderOf(id)] ?? null
+  const h = holderOf(id)
+  if (h === state.playerId) return PLAYER_COLOUR
+  return COLOURS[h] ?? null
 }
 
 /** One country's classes; the `rel-*` classes still drive war/ember animation and strokes. */

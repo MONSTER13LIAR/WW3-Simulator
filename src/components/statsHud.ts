@@ -52,7 +52,7 @@ export function renderHud(): string {
   <div class="hud" data-sig="${hudSignature()}">
     <div class="hud-self">
       <span class="card-flag">${m.flag}</span>
-      <div><b>${m.short}</b><small>${m.leader}</small></div>
+      <div><b>${m.short}</b><small>${m.id === 'United States of America' ? 'United States' : m.id}</small></div>
       <div class="hud-pop" title="${formatExact(livingIn(m.id))} alive">
         <span>Population</span>
         <b>${formatPop(livingIn(m.id))}</b>
