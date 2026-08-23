@@ -59,6 +59,12 @@ Orders play out on the map: an invasion arcs across the world as a dotted line w
 
 ![Invasion on the map](docs/screenshots/invasion.png)
 
+### Someone launched
+
+A missile in flight from Brazil to Japan. The map goes red for the whole room, the warhead arcs across the globe, and the impact flash lands on the target region before the casualty count hits the channel.
+
+![Missile launch](docs/screenshots/launch.png)
+
 ## Under the hood
 
 Leader dialogue comes from a model behind `/api/leader`, a serverless function that calls Featherless server-side with a per-IP rate limit. The key never reaches the browser. If the model is unreachable, every leader falls back to scripted lines and the game keeps going.
