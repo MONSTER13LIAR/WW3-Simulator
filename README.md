@@ -15,6 +15,44 @@ Every other leader is played by a language model with a posture, a volatility, a
 - **The world moves without you.** One real minute is one day. Each day one to five things happen on the map: blockades, seized straits, armour over a border, submarines off your coast, a satellite shot down, a coup, a leader killed in a motorcade. Roughly half of them put a decision to you with consequences either way.
 - **Endings.** Peace treaty, victory, annihilation, colonised, debt, coup, exile, forgotten. A run is ten to fifteen minutes. Nothing saves you from the consequences of the previous one.
 
+## Screens
+
+### Pick a country
+
+Twelve states, each with its opening population, warheads, military, economy, morale and standing. Those numbers are the only edge you get — everyone else is playing too.
+
+![Pick a country](docs/screenshots/pick-a-country.png)
+
+### The guide walks you in
+
+A four-step tour on your first run points out the room, the map, your orders and the clock, then gets out of the way.
+
+![Guide](docs/screenshots/guide.png)
+
+### The room
+
+Your country on the map, your stats along the top, the global channel on the right, and every order along the bottom. Day one opens with one state launching on another and the rest of the room reacting.
+
+![The room](docs/screenshots/the-room.png)
+
+### Picking a side
+
+The room splits into two coalitions and both pitch you. Whichever you join becomes your alliance channel; the other side remembers.
+
+![Picking a side](docs/screenshots/pick-a-side.png)
+
+### Inbox
+
+The global channel, your alliance, and a private DM with every leader — unread counts included, because they keep talking whether you read it or not.
+
+![Inbox](docs/screenshots/inbox.png)
+
+### Every order shows its price
+
+Hover any order and it tells you who can do it and what it costs in military, standing, morale and trust before you commit. One more click sends it.
+
+![Order hover](docs/screenshots/order-hover.png)
+
 ## Under the hood
 
 Leader dialogue comes from a model behind `/api/leader`, a serverless function that calls Featherless server-side with a per-IP rate limit. The key never reaches the browser. If the model is unreachable, every leader falls back to scripted lines and the game keeps going.
