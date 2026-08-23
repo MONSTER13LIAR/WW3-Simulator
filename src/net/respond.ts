@@ -20,6 +20,7 @@ const FALLBACK: Record<string, string[]> = {
   'Australia': ['We will stand with our allies.', 'Sea lanes must stay open.'],
   'Canada': ['We call for an immediate ceasefire and talks.', 'We are coordinating with the coalition.'],
   'Switzerland': ['Switzerland remains neutral. We can host talks.', 'No comment. The accounts are noted.'],
+  'Israel': ['We will defend ourselves. By ourselves if necessary.', 'We do not comment on our capabilities.'],
 }
 
 function fallbackLine(id: string): string {

@@ -2,13 +2,15 @@
 
 **Play it: [4iqezihk.insforge.site](https://4iqezihk.insforge.site)**
 
-You are a head of state in a group chat with eleven others. One of them just launched. Fourteen days later the world has either made peace, made you its ruler, or stopped existing.
+> **New:** Israel has joined the room as the thirteenth playable state — small, surrounded, and done asking permission.
+
+You are a head of state in a group chat with twelve others. One of them just launched. Fourteen days later the world has either made peace, made you its ruler, or stopped existing.
 
 Every other leader is played by a language model with a posture, a volatility, and a memory of everything you have done to them. They overreact, hold grudges, DM each other behind your back, and occasionally fire a warhead because you left them on read.
 
 ## Playing
 
-- **Pick a country.** Twelve are playable, each with its own military, economy, morale and standing.
+- **Pick a country.** Thirteen are playable, each with its own military, economy, morale and standing.
 - **The opening crisis.** One state strikes another. The room splits. You pick a side and get an alliance channel.
 - **The room.** A global channel, private DMs with every leader, your alliance, and an intercept feed of traffic the others think you cannot read.
 - **Orders.** Diplomacy, alliances, sanctions, mobilisation, propaganda, invasion, supplies to allies, walking out of a pact — and the launch button. Every order shows its cost on hover and asks once before it goes through.
@@ -19,7 +21,7 @@ Every other leader is played by a language model with a posture, a volatility, a
 
 ### Pick a country
 
-Twelve states, each with its opening population, warheads, military, economy, morale and standing. Those numbers are the only edge you get — everyone else is playing too.
+Thirteen states, each with their opening population, warheads, military, economy, morale and standing. Those numbers are the only edge you get — everyone else is playing too.
 
 ![Pick a country](docs/screenshots/pick-a-country.png)
 

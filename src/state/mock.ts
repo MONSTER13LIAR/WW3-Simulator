@@ -1,7 +1,7 @@
 import type { Leader, Ending, EndingId, ChatMsg, CountryId } from './types'
 
 /**
- * The twelve states. `doctrine` is the public one-line stance, `persona` the
+ * The thirteen states. `doctrine` is the public one-line stance, `persona` the
  * strategic posture the model plays: how that government actually behaves in
  * a crisis. National flavour colours how they speak, never what they decide.
  * Leaders are invented; no real politician is depicted.
@@ -163,13 +163,26 @@ export const LEADERS: Leader[] = [
       'you refused their offer to host talks',
     ],
   },
+  {
+    id: 'Israel', short: 'ISR', flag: '🇮🇱',
+    leader: 'Prime Minister Dov Aharoni',
+    doctrine: 'Small, surrounded, and done asking permission.',
+    persona: "A small state that assumes nobody is coming to help and plans accordingly. Blunt, fast, allergic to being lectured; answers any threat before the sentence is finished and says so. Wants security guarantees in writing and trusts none of them. Never the first to back down, never admits to the arsenal.",
+    stats: { military: 80, economy: 74, morale: 72, standing: 38 },
+    volatility: 1.4, pettiness: 0.6,
+    grievances: [
+      'you lectured them about restraint',
+      'you voted against them in the room',
+      'you armed a neighbour of theirs',
+    ],
+  },
 ]
 
 export const LEADER_BY_ID = new Map(LEADERS.map(l => [l.id, l]))
 
 /** Opening scene in the global channel. Sets the tone before turn one. */
 export const SEED_GLOBAL: Array<[string, string]> = [
-  ['SYSTEM', 'GLOBAL CHANNEL ESTABLISHED — 12 heads of state connected'],
+  ['SYSTEM', 'GLOBAL CHANNEL ESTABLISHED — 13 heads of state connected'],
   ['Switzerland', 'Reminder that I am neutral, and also that I know exactly what each of you has in your accounts.'],
   ['Australia', 'morning all. currently at war with a bird. will circle back'],
   ['Germany', 'Australia, a bird is not a recognised belligerent under Annex 4.'],
@@ -182,6 +195,7 @@ export const SEED_GLOBAL: Array<[string, string]> = [
   ['India', 'Adding everyone to WORLD PEACE (official) v2 FINAL 🙏'],
   ['Japan', 'Good morning. I am so terribly sorry. I have mobilised the fleet. Again, I apologise.'],
   ['Brazil', 'is this a party'],
+  ['Israel', 'Whoever is moving troops near my border: I already know. Stop.'],
   ['China', 'I have completed a city during this conversation.'],
   ['Canada', 'sorry to interrupt — sorry — is anyone else slightly concerned about all of this'],
   ['France', 'I am on strike.'],
@@ -213,6 +227,7 @@ export const SEED_DMS: Record<string, string[]> = {
   'Australia': ['yeah nah the bird won', 'anyway do you have any spare nukes'],
   'India': ['gm 🙏', 'Kindly do the needful regarding the annexation.', 'Forwarded as received.'],
   'Germany': ['Your declaration of war has been rejected.', 'Reason: incorrect font.'],
+  'Israel': ['Saw your mobilisation.', 'Responded to it 40 minutes ago.', 'You are welcome to ask what with.'],
   'Canada': ['sorry', 'sorry, that was meant for the group', 'sorry'],
   'United States of America': [
     'Hey hey! Quick sync re: the apocalypse?',
@@ -263,7 +278,7 @@ export const ENDINGS: Record<EndingId, Ending> = {
     id: 'peace', tone: 'good',
     title: 'PEACE PRIZE',
     verdict: 'Every bloc intact. Nobody can believe it either.',
-    blurb: 'Twelve unstable heads of state, zero launches. Statistically this should not have happened.',
+    blurb: 'Thirteen unstable heads of state, zero launches. Statistically this should not have happened.',
   },
   treaty: {
     id: 'treaty', tone: 'good',

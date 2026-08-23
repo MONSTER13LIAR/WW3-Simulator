@@ -60,7 +60,7 @@ export function renderHowTo(): string {
         <p class="eyebrow">The loop</p>
         <ol class="steps">
           ${step(1, 'Take office', 'Pick one of the ' + LEADERS.length + ' states. Your doctrine sets your opening stats — nobody starts equal.')}
-          ${step(2, 'Talk', 'Everything happens in the chat. Post in GLOBAL so all eleven see it, or open a DM and work someone privately. They remember what you said.')}
+          ${step(2, 'Talk', 'Everything happens in the chat. Post in GLOBAL so all twelve see it, or open a DM and work someone privately. They remember what you said.')}
           ${step(3, 'Give orders', 'The bar along the bottom is what you can actually do. Every order moves your stats and the room reacts to it.')}
           ${step(4, 'End the day', 'Time only moves when you say so. Then it happens again, with worse tempers.')}
         </ol>

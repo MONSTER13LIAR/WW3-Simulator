@@ -24,16 +24,16 @@ for (const path in RAW) {
 }
 
 /**
- * Draw order. The twelve playable states come first so they take the opening cells
+ * Draw order. The thirteen playable states come first so they take the opening cells
  * of the panel; the rest fills out the remaining lit cells. Fifty entries for the
  * fifty lit cells in WW3, so every country appears exactly once.
  */
 export const FLAG_CODES = [
   // playable
-  'us', 'ru', 'cn', 'in', 'jp', 'de', 'fr', 'gb', 'br', 'au', 'ca', 'ch',
+  'us', 'ru', 'cn', 'in', 'jp', 'de', 'fr', 'gb', 'br', 'au', 'ca', 'ch', 'il',
   // widely recognised
   'kr', 'it', 'es', 'mx', 'za', 'ar', 'eg', 'tr', 'se', 'no', 'dk', 'fi',
-  'nl', 'be', 'pt', 'gr', 'pl', 'ua', 'il', 'sa', 'ir', 'pk', 'id', 'th',
+  'nl', 'be', 'pt', 'gr', 'pl', 'ua', 'sa', 'ir', 'pk', 'id', 'th',
   'vn', 'ph', 'ng', 'ke', 'my', 'sg', 'nz', 'ie', 'at', 'cz', 'hu', 'ro',
   'cl', 'co',
 ].filter(code => code in SOURCE)

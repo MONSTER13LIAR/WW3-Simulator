@@ -70,13 +70,14 @@ export const COLOURS: Record<string, string> = {
   'Australia':                '#9a7a3c',
   'Canada':                   '#8a4f62',
   'Switzerland':              '#7a5650',
+  'Israel':                   '#5f7f7a',
 }
 
 /** circle-flags code per playable state, for the on-map label */
 const ISO: Record<string, string> = {
   'United States of America': 'us', 'Russia': 'ru', 'China': 'cn', 'India': 'in',
   'Japan': 'jp', 'Germany': 'de', 'France': 'fr', 'United Kingdom': 'gb',
-  'Brazil': 'br', 'Australia': 'au', 'Canada': 'ca', 'Switzerland': 'ch',
+  'Brazil': 'br', 'Australia': 'au', 'Canada': 'ca', 'Switzerland': 'ch', 'Israel': 'il',
 }
 
 /** Label anchors nudged off the centroid where Europe gets crowded. */
@@ -85,6 +86,7 @@ const LABEL_OFFSET: Record<string, [number, number]> = {
   'France':         [28, -42],   // centroid is dragged toward French Guiana
   'Germany':        [10, -18],
   'Switzerland':    [4, 22],
+  'Israel':         [18, 16],
   'Japan':          [26, 4],
   'Canada':         [-10, -8],
   'United States of America': [14, 8],
