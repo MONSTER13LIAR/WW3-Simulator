@@ -206,5 +206,54 @@ export function worldWarAlarm() {
 /** called when leaving the game screen */
 export function clearFx() {
   document.getElementById('fx-overlay')?.remove()
+  document.getElementById('fx-wire')?.remove()
   document.getElementById('ww3-alarm')?.remove()
+}
+
+/**
+ * Something happened *in* a country rather than between two: a leader shot,
+ * a coup, a spy ring rolled up. An icon drops onto the country and holds
+ * with a label, so the event is on the board and not only in the chat.
+ */
+export function mark(id: string, icon: string, label: string, holdMs = 16_000) {
+  const svg = overlay()
+  if (!svg) return
+  const [x, y] = centroidOf(id)
+  const group = el('g', { class: 'fx fx-deploy fx-mark' })
+  svg.appendChild(group)
+  group.appendChild(el('circle', { class: 'fx-hold fx-hold--mark', cx: x, cy: y, r: 9 }))
+  const icn = el('text', { class: 'fx-unit fx-unit--mark', x, y: y - 6, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 15 })
+  icn.textContent = icon
+  group.appendChild(icn)
+  const tag = el('text', { class: 'fx-label fx-label--deploy', x, y: y + 14, 'text-anchor': 'middle' })
+  tag.textContent = label
+  group.appendChild(tag)
+  setTimeout(() => { group.classList.add('fx-out'); setTimeout(() => group.remove(), 900) }, holdMs)
+}
+
+/**
+ * The wire: a one-line headline over the map for every world event, so the
+ * player sees the world move even with the chat collapsed. Lives on <body>
+ * for the same reason the overlay does. `decision` ones glow until clicked.
+ */
+export function headline(text: string, tone: 'event' | 'strike' | 'decision' = 'event', onClick?: () => void) {
+  const shell = document.getElementById('map-shell')
+  if (!shell) return
+  let wire = document.getElementById('fx-wire')
+  if (!wire) {
+    wire = document.createElement('div')
+    wire.id = 'fx-wire'
+    document.body.appendChild(wire)
+  }
+  const r = shell.getBoundingClientRect()
+  Object.assign(wire.style, { left: `${r.left + 12}px`, bottom: `${window.innerHeight - r.bottom + 12}px`, width: `${Math.min(420, r.width - 24)}px` })
+  const row = document.createElement('button')
+  row.className = `wire-row wire-row--${tone}`
+  row.innerHTML = `<i></i><span></span>`
+  row.querySelector('span')!.textContent = text
+  if (onClick) row.addEventListener('click', () => { onClick(); row.remove() })
+  wire.prepend(row)
+  while (wire.children.length > 4) wire.lastElementChild?.remove()
+  const life = tone === 'decision' ? 40_000 : 14_000
+  setTimeout(() => { row.classList.add('out'); setTimeout(() => row.remove(), 600) }, life)
 }

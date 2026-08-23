@@ -342,9 +342,12 @@ export function setBloc(members: CountryId[]) {
 }
 
 /** Put a two-button decision into a channel. */
-export function ask(channel: Channel, text: string, options: Array<{ label: string; members: CountryId[] }>) {
+export function ask(
+  channel: Channel, text: string, options: Array<{ label: string; members: CountryId[] }>,
+  tag?: string, who: CountryId[] = [],
+) {
   const m = msg('SYSTEM', channel, text, state.day, 'choice')
-  m.choice = { options }
+  m.choice = { options, tag, who }
   push(m)
   return m
 }

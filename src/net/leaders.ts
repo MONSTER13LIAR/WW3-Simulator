@@ -60,6 +60,8 @@ export async function askLeader(leaderId: string, channel: string, opts: AskOpti
     const res = await fetch('/api/leader', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      // a hung request must not hold the world ticker's busy flag forever
+      signal: AbortSignal.timeout(12_000),
       body: JSON.stringify({
         leaderId,
         playerId: state.playerId,

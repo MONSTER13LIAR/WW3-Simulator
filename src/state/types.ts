@@ -70,6 +70,10 @@ export type MsgKind = 'said' | 'system' | 'action' | 'choice' | 'treaty'
 /** A decision put to the player inside the chat: two sides, one click. */
 export interface Choice {
   options: Array<{ label: string; members: CountryId[] }>
+  /** which world event this decision belongs to; routes the answer */
+  tag?: string
+  /** the other state(s) the event concerns */
+  who?: CountryId[]
   /** index picked, once picked */
   picked?: number
 }

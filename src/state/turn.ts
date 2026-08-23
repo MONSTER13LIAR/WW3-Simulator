@@ -9,6 +9,7 @@ import { POPULATION, dailyGrowth, formatExact } from './population'
 import { leaderRespond, someoneReacts } from '../net/respond'
 import { strike as strikeFx } from '../components/fx'
 import { theyWantPeace, receiveOffer } from './treaty'
+import { ensureDailyEvent, noteEvent } from './world'
 
 export const MAX_DAYS = 14
 
@@ -33,6 +34,8 @@ export async function endDay(): Promise<void> {
   if (state.resolving || state.ending || !state.playerId || state.phase !== 'play') return
   setResolving(true)
 
+  // the day must not close without the world having done something visible
+  await ensureDailyEvent()
   advanceDay()
   driftStats()
   driftPopulation()
@@ -150,6 +153,7 @@ function maybeFalls(id: CountryId, by: CountryId) {
 /** A warhead fired by an AI state: fx, toll, log, and the fall check, in sequence. */
 export async function aiLaunch(from: CountryId, to: CountryId): Promise<void> {
   if (!spendBomb(from)) return
+  noteEvent()
   const r = region()
   const fromShort = LEADERS.find(l => l.id === from)?.short ?? from
   const toShort = LEADERS.find(l => l.id === to)?.short ?? to
