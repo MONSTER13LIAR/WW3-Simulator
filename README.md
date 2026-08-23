@@ -53,6 +53,12 @@ Hover any order and it tells you who can do it and what it costs in military, st
 
 ![Order hover](docs/screenshots/order-hover.png)
 
+### The map moves
+
+Orders play out on the map: an invasion arcs across the world as a dotted line with a banner on arrival, allies are outlined, and animations run on their own layer so a re-render never cuts one short.
+
+![Invasion on the map](docs/screenshots/invasion.png)
+
 ## Under the hood
 
 Leader dialogue comes from a model behind `/api/leader`, a serverless function that calls Featherless server-side with a per-IP rate limit. The key never reaches the browser. If the model is unreachable, every leader falls back to scripted lines and the game keeps going.
