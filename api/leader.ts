@@ -1,4 +1,4 @@
-import { handleLeader } from '../server/handler'
+import { handleLeader } from '../server/handler.js'
 
 /** Vercel serverless entry. The key lives in the platform env, never in the bundle. */
 export default async function handler(req: any, res: any) {

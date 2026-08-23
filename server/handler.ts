@@ -1,4 +1,4 @@
-import { leaderReply, type LeaderTurn } from './featherless'
+import { leaderReply, type LeaderTurn } from './featherless.js'
 
 /** Crude per-IP token bucket so a demo that goes around doesn't drain the account. */
 const WINDOW_MS = 60_000

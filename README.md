@@ -1,4 +1,6 @@
-# WW3 Simulator
+# <img src="public/apple-touch-icon.png" width="32" height="32" align="top" alt=""> WW3 Simulator
+
+**Play it: [4iqezihk.insforge.site](https://4iqezihk.insforge.site)**
 
 You are a head of state in a group chat with eleven others. One of them just launched. Fourteen days later the world has either made peace, made you its ruler, or stopped existing.
 
@@ -13,23 +15,9 @@ Every other leader is played by a language model with a posture, a volatility, a
 - **The world moves without you.** One real minute is one day. Each day one to five things happen on the map: blockades, seized straits, armour over a border, submarines off your coast, a satellite shot down, a coup, a leader killed in a motorcade. Roughly half of them put a decision to you with consequences either way.
 - **Endings.** Peace treaty, victory, annihilation, colonised, debt, coup, exile, forgotten. A run is ten to fifteen minutes. Nothing saves you from the consequences of the previous one.
 
-## Running it
+## Under the hood
 
-```
-npm install
-npm run dev        # http://localhost:3000
-```
-
-Leader dialogue comes from a model behind `/api/leader`. Put a Featherless key in `.env`:
-
-```
-FEATHERLESS_API_KEY=...
-FEATHERLESS_MODEL=Qwen/Qwen3-30B-A3B-Instruct-2507
-```
-
-Without a key the game still plays — every leader falls back to scripted lines. The key never reaches the browser; the Vite dev server and the Vercel function both call the model server-side with a per-IP rate limit.
-
-`npm run build` type-checks and produces `dist/`. Deploys as a static site plus one serverless function (`api/leader.ts`).
+Leader dialogue comes from a model behind `/api/leader`, a serverless function that calls Featherless server-side with a per-IP rate limit. The key never reaches the browser. If the model is unreachable, every leader falls back to scripted lines and the game keeps going.
 
 ## Stack
 

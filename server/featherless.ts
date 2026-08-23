@@ -1,4 +1,4 @@
-import { LEADER_BY_ID } from '../src/state/mock'
+import { LEADER_BY_ID } from '../src/state/mock.js'
 
 export interface LeaderTurn {
   /** country id of the leader who should speak */
