@@ -1,4 +1,4 @@
-import { state, reset, endGame, bombsOf } from '../state/store'
+import { state, reset, bombsOf } from '../state/store'
 import { INBOX } from '../components/chatPanel'
 import { renderWorldMap, bindMapClicks, refreshMap } from '../components/worldMap'
 import { renderHud, resetHudMemory, hudSignature } from '../components/statsHud'
@@ -8,9 +8,7 @@ import { MAX_DAYS, startClock, secondsLeft } from '../state/turn'
 import { runOpening } from '../state/opening'
 import { startWorld } from '../state/world'
 import { renderRail, bindRail, updateRail } from '../components/chatPanel'
-import { ENDINGS } from '../state/mock'
 import { formatPop, formatExact } from '../state/population'
-import type { EndingId } from '../state/types'
 import { arrowRight } from '../components/arrow'
 
 /**
@@ -140,11 +138,6 @@ export function renderGame(): string {
       </section>
       <div class="rail-slot">${renderRail()}</div>
     </div>
-  </div>
-
-  <div class="devbar">
-    <span class="eyebrow">Preview endings</span>
-    ${Object.keys(ENDINGS).map(k => `<button data-end="${k}">${k}</button>`).join('')}
   </div>`
 }
 
@@ -197,9 +190,6 @@ export function bindGame(root: HTMLElement) {
     toggle.setAttribute('aria-expanded', String(railOpen))
     toggle.innerHTML = railToggle()
   })
-  root.querySelectorAll<HTMLElement>('[data-end]').forEach(el =>
-    el.addEventListener('click', () => endGame(el.dataset.end as EndingId)))
-
   bindGuide(root)
   startClock()
   startWorld()

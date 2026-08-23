@@ -3,8 +3,8 @@
 
 html, body { height: 100%; }
 
-/* devbar (when present) sits below the screen instead of over it */
-#app { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+
+#app { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr); }
 
 body {
   background: var(--ink-1000);
