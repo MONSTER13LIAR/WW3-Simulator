@@ -65,7 +65,17 @@ export interface LeaderMemory {
   lastContact: number
 }
 
-export type MsgKind = 'said' | 'system' | 'action' | 'choice' | 'treaty'
+export type MsgKind = 'said' | 'system' | 'action' | 'choice' | 'treaty' | 'recruit'
+
+/** A found-your-own-alliance form in the chat: toggle states, send the invitations. */
+export interface Recruit {
+  /** states currently toggled on */
+  chosen: CountryId[]
+  /** set once the invitations go out; the form freezes */
+  sent?: boolean
+  accepted?: CountryId[]
+  declined?: CountryId[]
+}
 
 /** A decision put to the player inside the chat: two sides, one click. */
 export interface Choice {
@@ -91,6 +101,8 @@ export interface ChatMsg {
   to?: CountryId
   /** set on kind 'choice' */
   choice?: Choice
+  /** set on kind 'recruit' */
+  recruit?: Recruit
 }
 
 /** The incident the game opens on: one state struck another and the room split over it. */

@@ -7,6 +7,7 @@ import {
 import { formatExact } from './population'
 import { leaderRespond } from '../net/respond'
 import { strike as strikeFx } from '../components/fx'
+import { startRecruit } from './recruit'
 
 const pick = <T,>(arr: T[]): T | undefined => arr[Math.floor(Math.random() * arr.length)]
 const wait = (ms: number) => new Promise(r => setTimeout(r, ms))
@@ -29,8 +30,11 @@ export async function runOpening(): Promise<void> {
   const rest = ai.filter(id => id !== aggressor)
   const victim = pick(rest)!
   const others = shuffle(rest.filter(id => id !== victim))
-  const sideA = [aggressor, others[0], others[1]]
-  const sideB = [victim, others[2], others[3]]
+  // blocs are never the same size twice: 3 to 5 states each, the rest unaligned
+  const sizeA = 3 + Math.floor(Math.random() * 3)
+  const sizeB = 3 + Math.floor(Math.random() * 3)
+  const sideA = [aggressor, ...others.slice(0, sizeA - 1)]
+  const sideB = [victim, ...others.slice(sizeA - 1, sizeA - 1 + sizeB - 1)]
   const region = pick(REGIONS) as Region
 
   for (const side of [sideA, sideB]) {
@@ -56,6 +60,11 @@ export async function runOpening(): Promise<void> {
     [aggressor, `You just struck ${short(victim)}. Justify it to the room as a necessary act and warn ${short(victim)}'s allies (${names(sideB.slice(1))}) to stay out.`],
     [sideB[1], `${short(victim)} is your ally and was just struck by ${short(aggressor)}. Commit to ${short(victim)}'s side in public and warn ${short(aggressor)}.`],
     [sideA[1], `${short(aggressor)} is your ally. Back ${short(aggressor)} and tell ${names(sideB)} that your side will answer any retaliation.`],
+    // deeper benches speak too — every extra member of a 4- or 5-state bloc adds one hard line
+    ...sideB.slice(3).map((id): [CountryId, string] =>
+      [id, `You are also sworn to ${short(victim)}'s side (${names(sideB)}). Add one hard line of your own: what your bloc does if ${short(aggressor)}'s side moves again.`]),
+    ...sideA.slice(3).map((id): [CountryId, string] =>
+      [id, `You are also sworn to ${short(aggressor)}'s side (${names(sideA)}). Add one hard line of your own backing ${short(aggressor)} against ${names(sideB)}.`]),
     [sideB[2], `Turn to ${p}, who has said nothing yet. Ask ${p} directly whether they stand with ${names(sideB)} or with ${names(sideA)}.`],
     [sideA[2], `${p} has not chosen a side. Make ${p} an offer to join ${names(sideA)} — say what ${p} gains, and what ${p} risks by refusing.`],
   ]
@@ -67,6 +76,7 @@ export async function runOpening(): Promise<void> {
   ask('GLOBAL', 'The room is waiting. Whose side are you on?', [
     { label: `Join ${names(sideA)}`, members: sideA },
     { label: `Join ${names(sideB)}`, members: sideB },
+    { label: 'Neither — found your own alliance', members: [] },
   ])
 }
 
@@ -77,7 +87,14 @@ export function pickSide(messageId: string, index: number): void {
   m.choice.picked = index
   const me = state.playerId
   const chosen = m.choice.options[index].members
-  const other = m.choice.options[1 - index].members
+
+  // the third door: refuse both blocs and shop for your own
+  if (!chosen.length) {
+    say(me, 'GLOBAL', `${short(me)} declines both blocs and will found an alliance of its own.`, 'action')
+    startRecruit()
+    return
+  }
+  const other = m.choice.options.find((o, i) => i !== index && o.members.length)?.members ?? []
 
   for (const id of chosen) { formAlliance(me, id); nudgeTrust(id, 30); mem(id).bloc.push(me) }
   for (const id of other) nudgeTrust(id, -30, `you joined ${names(chosen)} against them`)

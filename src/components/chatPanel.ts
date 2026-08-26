@@ -2,6 +2,7 @@ import { LEADERS, LEADER_BY_ID } from '../state/mock'
 import { state, messagesFor, openChannel, say, alliesOf } from '../state/store'
 import { leaderRespond, blocReacts } from '../net/respond'
 import { pickSide } from '../state/opening'
+import { toggleRecruit, sendInvites } from '../state/recruit'
 import { offerTreaty, answerOffer, treatyOpen, TREATY_DAY } from '../state/treaty'
 import { answerWorldChoice } from '../state/world'
 import type { ChatMsg } from '../state/types'
@@ -20,9 +21,9 @@ const esc = (s: string) => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;'
 function bubble(m: ChatMsg): string {
   const mine = m.from === state.playerId
   const l = m.from !== 'SYSTEM' ? LEADER_BY_ID.get(m.from) : null
-  const cls = m.kind === 'system' ? 'msg--system' : m.kind === 'action' ? 'msg--action' : m.kind === 'choice' ? 'msg--choice' : m.kind === 'treaty' ? 'msg--treaty' : mine ? 'msg--me' : ''
+  const cls = m.kind === 'system' ? 'msg--system' : m.kind === 'action' ? 'msg--action' : m.kind === 'choice' || m.kind === 'recruit' ? 'msg--choice' : m.kind === 'treaty' ? 'msg--treaty' : mine ? 'msg--me' : ''
   const to = m.to ? ` <i>→ ${LEADER_BY_ID.get(m.to)?.short ?? m.to}</i>` : ''
-  const who = m.kind === 'system' || m.kind === 'choice' || m.kind === 'treaty' ? '' : `<span class="who">${l ? `${l.flag} ${l.short}` : ''}${to}</span>`
+  const who = m.kind === 'system' || m.kind === 'choice' || m.kind === 'treaty' || m.kind === 'recruit' ? '' : `<span class="who">${l ? `${l.flag} ${l.short}` : ''}${to}</span>`
   const fresh = mounted.has(m.id) ? '' : ' is-new'
   mounted.add(m.id)
   if (m.kind === 'choice' && m.choice) {
@@ -32,6 +33,26 @@ function bubble(m: ChatMsg): string {
         ${o.members.map(id => LEADER_BY_ID.get(id)?.flag ?? '').join(' ')}<b>${esc(o.label)}</b>
       </button>`).join('')
     return `<div class="msg ${cls}${fresh}" data-mid="${m.id}"><div class="bubble">${esc(m.text)}</div><div class="sides">${opts}</div></div>`
+  }
+  if (m.kind === 'recruit' && m.recruit) {
+    const r = m.recruit
+    if (!r.sent) {
+      const rows = LEADERS
+        .filter(l => l.id !== state.playerId && state.relations[l.id] !== 'destroyed')
+        .map(l => `
+        <button class="side recruit-opt${r.chosen.includes(l.id) ? ' is-on' : ''}" data-recruit="${l.id}" data-mid="${m.id}">
+          ${l.flag} <b>${l.short}</b>${state.crisis?.sides.some(s => s.includes(l.id)) ? '<small>sworn</small>' : ''}
+        </button>`).join('')
+      const n = r.chosen.length
+      return `<div class="msg ${cls}${fresh}" data-mid="${m.id}"><div class="bubble">${esc(m.text)}</div>
+        <div class="sides recruit-grid">${rows}</div>
+        <button class="side recruit-send" data-recruit-send="${m.id}"${n ? '' : ' disabled'}><b>Send ${n || 'the'} invitation${n === 1 ? '' : 's'}</b></button></div>`
+    }
+    const verdicts = [
+      ...(r.accepted ?? []).map(id => `<button class="side is-picked" disabled>${LEADER_BY_ID.get(id)?.flag ?? ''} <b>${LEADER_BY_ID.get(id)?.short ?? id}</b><small>joined</small></button>`),
+      ...(r.declined ?? []).map(id => `<button class="side" disabled>${LEADER_BY_ID.get(id)?.flag ?? ''} <b>${LEADER_BY_ID.get(id)?.short ?? id}</b><small>declined</small></button>`),
+    ].join('')
+    return `<div class="msg ${cls}${fresh}" data-mid="${m.id}"><div class="bubble">${esc(m.text)}</div><div class="sides recruit-grid">${verdicts}</div></div>`
   }
   if (m.kind === 'treaty') {
     return `<div class="msg ${cls}${fresh}" data-mid="${m.id}"><pre class="bubble treaty">${esc(m.text)}</pre></div>`
@@ -213,6 +234,13 @@ export function bindRail(root: HTMLElement) {
         if (m.choice && m.choice.picked === undefined) { m.choice.picked = i; answerOffer(i) }
       } else pickSide(el.dataset.mid!, i)
     }))
+
+  root.querySelectorAll<HTMLButtonElement>('[data-recruit]').forEach(el =>
+    el.addEventListener('click', () => toggleRecruit(el.dataset.mid!, el.dataset.recruit!)))
+
+  root.querySelector<HTMLButtonElement>('[data-recruit-send]')?.addEventListener('click', function (this: HTMLButtonElement) {
+    void sendInvites(this.dataset.recruitSend!)
+  })
 
   root.querySelector<HTMLButtonElement>('[data-treaty]')?.addEventListener('click', () => void offerTreaty())
 
