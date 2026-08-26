@@ -17,7 +17,7 @@ import { shareSupplies, leaveAlliance, joinBloc } from '../state/world'
  */
 const TIPS: Record<string, string> = {
   diplomacy:  'Open the inbox and talk to any head of state directly. Free.',
-  alliance:   'Propose a pact with the target. They accept unless furious (trust under −30). Standing +6, morale +3; everyone else −6 trust.',
+  alliance:   'Propose a pact with the target. About 60% say yes — trust tilts the odds, and the furious (under −30) never do. Standing +6, morale +3; everyone else −6 trust.',
   sanction:   'Cut the target off. Target −35 trust, their bloc −10. You: economy −5, standing −8, Defcon −1.',
   supplies:   'Send fuel, grain or batteries to your ally. Ally +14 trust, standing +2. Economy −4.',
   mobilise:   'Call up the reserves. Military +7, economy −6, morale −4, Defcon −1. Everyone −6 trust.',
@@ -128,20 +128,25 @@ function run(act: string) {
       openChannel(INBOX)
       break
 
-    case 'alliance':
+    case 'alliance': {
       if (!t) return
-      if (mem(t).trust < -30) {
-        nudgeTrust(t, -4, 'you asked for an alliance while they were furious')
+      // never automatic: roughly 60/40 at neutral trust, warmer is likelier, furious never signs
+      const trust = mem(t).trust
+      const odds = trust < -30 ? 0 : Math.min(0.9, Math.max(0.2, 0.6 + trust / 250))
+      if (Math.random() >= odds) {
+        if (trust < -30) nudgeTrust(t, -4, 'you asked for an alliance while they were furious')
         say('SYSTEM', 'GLOBAL', `${short(t)} has declined the alliance`, 'system')
+        void leaderRespond(t, 'GLOBAL', { nudge: `${short(me)} just proposed a formal alliance and you are declining it. Say why, in your own terms.` })
       } else {
         joinBloc(t)
         nudgeTrust(t, 25)
         nudgeAll(-6, `you allied with ${short(t)}`, [t])
         bumpStats({ standing: 6, morale: 3 })
         say('SYSTEM', 'GLOBAL', `Alliance signed with ${short(t)}`, 'system')
+        void leaderRespond(t, 'GLOBAL', { nudge: `You have just signed a formal alliance with ${short(me)}. Say what the pact means and what you expect honoured.` })
       }
-      void leaderRespond(t, 'GLOBAL')
       break
+    }
 
     case 'sanction':
       if (!t) return
