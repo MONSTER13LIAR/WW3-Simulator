@@ -22,6 +22,7 @@ export const POPULATION: Record<CountryId, number> = {
   'Australia': 27_614_411,
   'Switzerland': 9_092_436,
   'Israel': 10_052_500,
+  'Iran': 92_417_681,
 }
 
 /** Everyone alive at the start, for "x% of the world" style readouts. */
@@ -54,6 +55,7 @@ export const REGION_WEIGHT: Record<CountryId, Record<Region, number>> = {
   'Australia':                { north: 0.4, south: 1.2, east: 1.4, west: 0.7 },
   'Switzerland':              { north: 1.2, south: 0.7, east: 0.9, west: 1.0 },
   'Israel':                   { north: 1.1, south: 0.4, east: 0.9, west: 1.4 },
+  'Iran':                     { north: 1.3, south: 0.6, east: 1.0, west: 1.2 },
 }
 
 /**

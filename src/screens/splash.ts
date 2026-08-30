@@ -15,7 +15,7 @@ export function renderSplash(): string {
         ${dotType('SIMULATOR', { className: 'wordmark-2', delayOffset: 240 })}
       </div>
 
-      <p class="splash-line">Thirteen heads of state. One group chat. Eight ways it ends.</p>
+      <p class="splash-line">Fourteen heads of state. One group chat. Eight ways it ends.</p>
 
       <div class="splash-actions">
         <button class="btn btn--primary btn--go" data-go="select">

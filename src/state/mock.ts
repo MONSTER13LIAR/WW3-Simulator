@@ -1,7 +1,7 @@
 import type { Leader, Ending, EndingId, ChatMsg, CountryId } from './types'
 
 /**
- * The thirteen states. `doctrine` is the public one-line stance, `persona` the
+ * The fourteen states. `doctrine` is the public one-line stance, `persona` the
  * strategic posture the model plays: how that government actually behaves in
  * a crisis. National flavour colours how they speak, never what they decide.
  * Leaders are invented; no real politician is depicted.
@@ -176,13 +176,26 @@ export const LEADERS: Leader[] = [
       'you armed a neighbour of theirs',
     ],
   },
+  {
+    id: 'Iran', short: 'IRN', flag: '🇮🇷',
+    leader: 'President Farhad Rostami',
+    doctrine: 'Forty years of sanctions. Still here.',
+    persona: "A proud, isolated state that has been under pressure so long it treats pressure as weather. Patient, formal, quietly contemptuous of lectures from anyone who has ever sanctioned it. Works through proxies and back channels, denies everything, and remembers every slight for decades. Deeply suspicious of Israel and the United States; warms fast to anyone who breaks ranks with them. Never confirms what is in the enrichment halls.",
+    stats: { military: 68, economy: 46, morale: 64, standing: 30 },
+    volatility: 1.2, pettiness: 0.8,
+    grievances: [
+      'you sanctioned them',
+      'you sided with Israel against them',
+      'you called their programme illegal in the room',
+    ],
+  },
 ]
 
 export const LEADER_BY_ID = new Map(LEADERS.map(l => [l.id, l]))
 
 /** Opening scene in the global channel. Sets the tone before turn one. */
 export const SEED_GLOBAL: Array<[string, string]> = [
-  ['SYSTEM', 'GLOBAL CHANNEL ESTABLISHED — 13 heads of state connected'],
+  ['SYSTEM', 'GLOBAL CHANNEL ESTABLISHED — 14 heads of state connected'],
   ['Switzerland', 'Reminder that I am neutral, and also that I know exactly what each of you has in your accounts.'],
   ['Australia', 'morning all. currently at war with a bird. will circle back'],
   ['Germany', 'Australia, a bird is not a recognised belligerent under Annex 4.'],
@@ -196,6 +209,7 @@ export const SEED_GLOBAL: Array<[string, string]> = [
   ['Japan', 'Good morning. I am so terribly sorry. I have mobilised the fleet. Again, I apologise.'],
   ['Brazil', 'is this a party'],
   ['Israel', 'Whoever is moving troops near my border: I already know. Stop.'],
+  ['Iran', 'We have been in an emergency for forty years. Welcome.'],
   ['China', 'I have completed a city during this conversation.'],
   ['Canada', 'sorry to interrupt — sorry — is anyone else slightly concerned about all of this'],
   ['France', 'I am on strike.'],
@@ -228,6 +242,7 @@ export const SEED_DMS: Record<string, string[]> = {
   'India': ['gm 🙏', 'Kindly do the needful regarding the annexation.', 'Forwarded as received.'],
   'Germany': ['Your declaration of war has been rejected.', 'Reason: incorrect font.'],
   'Israel': ['Saw your mobilisation.', 'Responded to it 40 minutes ago.', 'You are welcome to ask what with.'],
+  'Iran': ['Your sanctions were received.', 'They have been added to the pile.', 'We are told it is visible from orbit.'],
   'Canada': ['sorry', 'sorry, that was meant for the group', 'sorry'],
   'United States of America': [
     'Hey hey! Quick sync re: the apocalypse?',
@@ -278,7 +293,7 @@ export const ENDINGS: Record<EndingId, Ending> = {
     id: 'peace', tone: 'good',
     title: 'PEACE PRIZE',
     verdict: 'Every bloc intact. Nobody can believe it either.',
-    blurb: 'Thirteen unstable heads of state, zero launches. Statistically this should not have happened.',
+    blurb: 'Fourteen unstable heads of state, zero launches. Statistically this should not have happened.',
   },
   treaty: {
     id: 'treaty', tone: 'good',

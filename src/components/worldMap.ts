@@ -71,6 +71,7 @@ export const COLOURS: Record<string, string> = {
   'Canada':                   '#8a4f62',
   'Switzerland':              '#7a5650',
   'Israel':                   '#5f7f7a',
+  'Iran':                     '#7a6a3c',
 }
 
 /** circle-flags code per playable state, for the on-map label */
@@ -78,6 +79,7 @@ const ISO: Record<string, string> = {
   'United States of America': 'us', 'Russia': 'ru', 'China': 'cn', 'India': 'in',
   'Japan': 'jp', 'Germany': 'de', 'France': 'fr', 'United Kingdom': 'gb',
   'Brazil': 'br', 'Australia': 'au', 'Canada': 'ca', 'Switzerland': 'ch', 'Israel': 'il',
+  'Iran': 'ir',
 }
 
 /** Label anchors nudged off the centroid where Europe gets crowded. */
